@@ -21,15 +21,32 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package metamodel.field;
+package metamodel.generator;
+
+import java.io.File;
+import java.io.IOException;
+
+import com.sun.codemodel.JCodeModel;
 
 /**
- * Base interface for all field-definitions.
+ * Writes generated metamodel to specified folder.
  *
  * @author madprogger
- *
- * @param <BASE> type of class that declares the field
- * @param <ELEM> type of associated value(s)
+ * @see ModelBuilder
  */
-public interface MetaField<BASE, ELEM> {
+public class ModelWriter {
+
+	/**
+	 * Writes generated metamodel as source files to specified folder.
+	 *
+	 * @param codeModel metamodel
+	 * @param targetDir target directory. Will be created if not existent.
+	 * @throws IOException error writing source-files
+	 */
+	public void write(final JCodeModel codeModel, final File targetDir) throws IOException {
+		if (!targetDir.exists()) {
+			targetDir.mkdirs();
+		}
+		codeModel.build(targetDir);
+	}
 }
