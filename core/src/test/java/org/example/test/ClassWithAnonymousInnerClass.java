@@ -23,12 +23,14 @@
  */
 package org.example.test;
 
-/**
- *
- * @author madprogger
- */
-public class POJOTestClass2<T> {
+import java.lang.reflect.Type;
 
-	@SuppressWarnings("unused")
-	private String field;
+/**
+ * @author madprogger
+ *
+ */
+public class ClassWithAnonymousInnerClass {
+
+	private final Type t = new Type() {
+	};
 }

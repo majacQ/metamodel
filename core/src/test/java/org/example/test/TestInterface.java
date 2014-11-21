@@ -24,11 +24,10 @@
 package org.example.test;
 
 /**
- *
  * @author madprogger
+ *
  */
-public class POJOTestClass2<T> {
+public interface TestInterface {
 
-	@SuppressWarnings("unused")
-	private String field;
+	static final int interfaceConstant = 42;
 }

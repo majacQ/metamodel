@@ -24,11 +24,27 @@
 package org.example.test;
 
 /**
- *
  * @author madprogger
+ *
  */
-public class POJOTestClass2<T> {
+public enum TestEnum {
 
-	@SuppressWarnings("unused")
-	private String field;
+	V1("value 1"),
+	V2("value 2");
+
+	private final String value;
+
+	/**
+	 * @param value
+	 */
+	private TestEnum(final String value) {
+		this.value = value;
+	}
+
+	/**
+	 * @return the value
+	 */
+	public String getValue() {
+		return value;
+	}
 }

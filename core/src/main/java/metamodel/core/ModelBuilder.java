@@ -49,12 +49,22 @@ import com.sun.codemodel.JMod;
 import com.sun.codemodel.JType;
 
 /**
+ * Builds a Metamodel from a set of classes. The metamodel is built into a JCodeModel. With Accessors to their
+ * Field-Definitions.
  *
- * @author MiKro
- *
+ * @author madprogger
+ * @see ArrayField
+ * @see SingularField
+ * @see PluralField
  */
 public class ModelBuilder {
 
+	/**
+	 * Build metamodel for classes.
+	 *
+	 * @param classes Classes whose metamodel should be built. Only non-member-classes are allowed.
+	 * @return metamodel
+	 */
 	public JCodeModel buildCodeModel(final Set<Class<?>> classes) {
 		final Map<Class<?>, JDefinedClass> definedClasses = new HashMap<>();
 		final JCodeModel codeModel = new JCodeModel();
@@ -64,6 +74,14 @@ public class ModelBuilder {
 					throw new IllegalArgumentException(
 					        "inner classes are not supported for explicit metamodel generation. They are generated along with their parent classes. class was "
 					                + clazz.getName());
+				}
+				if (clazz.isAnnotation()) {
+					throw new IllegalArgumentException(
+					        "annotations are not supported for metamodel generation. annotation was " + clazz.getName());
+				}
+				if (clazz.isInterface()) {
+					throw new IllegalArgumentException(
+					        "interfaces are not supported for metamodel generation. interface was " + clazz.getName());
 				}
 				final JDefinedClass classCodeModel = codeModel._class(JMod.PUBLIC | JMod.ABSTRACT,
 				        getCorrespondingMetamodelClassName(clazz),
@@ -78,7 +96,8 @@ public class ModelBuilder {
 		for (final Entry<Class<?>, JDefinedClass> entry : definedClasses.entrySet()) {
 			final Class<?> clazz = entry.getKey();
 			final JDefinedClass classCodeModel = entry.getValue();
-			if (!Object.class.equals(clazz.getSuperclass())) {
+			if (clazz.getSuperclass() != null && !Object.class.equals(clazz.getSuperclass())
+			        && !Enum.class.equals(clazz.getSuperclass())) {
 				final JDefinedClass superClassDefinition = definedClasses.get(clazz.getSuperclass());
 				if (superClassDefinition != null) {
 					classCodeModel._extends(superClassDefinition);
@@ -95,6 +114,12 @@ public class ModelBuilder {
 		return codeModel;
 	}
 
+	/**
+	 * Calculate and return classname for generated metamodel class.
+	 *
+	 * @param clazz class whose metamodel-classname should be calculated
+	 * @return metamodel-classname for class
+	 */
 	private String getCorrespondingMetamodelClassName(final Class<?> clazz) {
 		if (clazz.isMemberClass()) {
 			return clazz.getSimpleName() + "_";
@@ -103,6 +128,14 @@ public class ModelBuilder {
 		}
 	}
 
+	/**
+	 * Defines a class with all its declared fields. Inner classes are also created if they are named.
+	 *
+	 * @param codeModel JCodeModel
+	 * @param classCodeModel class-definition to fill
+	 * @param clazz real-world-class for reading fields etc
+	 * @param definedClasses mapping for all defined classes, includes inner classes
+	 */
 	private void defineClass(final JCodeModel codeModel, final JDefinedClass classCodeModel, final Class<?> clazz,
 	        final Map<Class<?>, JDefinedClass> definedClasses) {
 
@@ -114,6 +147,9 @@ public class ModelBuilder {
 		}
 
 		for (final Class<?> innerClass : clazz.getDeclaredClasses()) {
+			if (innerClass.isAnonymousClass()) {
+				continue;
+			}
 			try {
 				// inner classes need to be static for inheritance to work without defining constructors
 				final JDefinedClass innerClassModel =
@@ -128,6 +164,13 @@ public class ModelBuilder {
 		definedClasses.put(clazz, classCodeModel);
 	}
 
+	/**
+	 * Add field-definition to metamodel.
+	 *
+	 * @param codeModel JCodeModel
+	 * @param classCodeModel class-definition to fill
+	 * @param field real-world-field
+	 */
 	private void addField(final JCodeModel codeModel, final JDefinedClass classCodeModel, final Field field) {
 		final JClass baseType = codeModel.ref(field.getDeclaringClass());
 		final Class<?> fieldType = field.getType();
@@ -183,6 +226,13 @@ public class ModelBuilder {
 		}
 	}
 
+	/**
+	 * Convert a {@link Type} to JClass. This includes generic type information.
+	 *
+	 * @param codeModel JCodeModel
+	 * @param possibleGenericType type to convert
+	 * @return converted type
+	 */
 	private JClass convertType(final JCodeModel codeModel, final Type possibleGenericType) {
 		if (possibleGenericType instanceof WildcardType) {
 			final WildcardType wildcardType = (WildcardType) possibleGenericType;

@@ -24,11 +24,12 @@
 package org.example.test;
 
 /**
- *
  * @author madprogger
+ *
  */
-public class POJOTestClass2<T> {
+public @interface TestAnnotation {
 
-	@SuppressWarnings("unused")
-	private String field;
+	static final int annotationConstant = 42;
+
+	int value();
 }
