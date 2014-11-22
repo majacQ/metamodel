@@ -21,21 +21,26 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package metamodel.field;
+package metamodel.field.impl;
+
+import metamodel.field.SingularField;
 
 /**
- * Base interface for all field-definitions.
+ * Implementation for simple field-definition. If a field is defined as {@code X field;}, then this kind of
+ * field-definition is used.
  *
  * @author madprogger
- *
  * @param <BASE> type of class that declares the field
- * @param <ELEM> type of associated value(s)
+ * @param <ELEM> type of associated value
  */
-public interface MetaField<BASE, ELEM> {
+public class SingularFieldImpl<BASE, ELEM> extends MetaFieldImpl<BASE, ELEM> implements SingularField<BASE, ELEM> {
+
 	/**
-	 * Get the name of the field.
+	 * Constructor.
 	 *
-	 * @return the name of the field
+	 * @param name of the field
 	 */
-	String getName();
+	public SingularFieldImpl(final String name) {
+		super(name);
+	}
 }

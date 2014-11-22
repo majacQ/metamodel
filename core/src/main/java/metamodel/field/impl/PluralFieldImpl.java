@@ -21,21 +21,27 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package metamodel.field;
+package metamodel.field.impl;
+
+import metamodel.field.PluralField;
 
 /**
- * Base interface for all field-definitions.
+ * Implementation for 1:n-field-definition. If a field is defined as {@link java.util.Collection} or
+ * {@link java.util.Map}, then this kind of field-definition is used.
  *
  * @author madprogger
- *
  * @param <BASE> type of class that declares the field
- * @param <ELEM> type of associated value(s)
+ * @param <COL> type of aggregating class, eg. a List or a Map
+ * @param <ELEM> type of associated values
  */
-public interface MetaField<BASE, ELEM> {
+public class PluralFieldImpl<BASE, COL, ELEM> extends MetaFieldImpl<BASE, ELEM> implements PluralField<BASE, COL, ELEM> {
+
 	/**
-	 * Get the name of the field.
+	 * Constructor.
 	 *
-	 * @return the name of the field
+	 * @param name of the field
 	 */
-	String getName();
+	public PluralFieldImpl(final String name) {
+		super(name);
+	}
 }

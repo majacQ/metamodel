@@ -55,6 +55,9 @@ import java.util.Set;
 import metamodel.field.ArrayField;
 import metamodel.field.PluralField;
 import metamodel.field.SingularField;
+import metamodel.field.impl.ArrayFieldImpl;
+import metamodel.field.impl.PluralFieldImpl;
+import metamodel.field.impl.SingularFieldImpl;
 
 import com.sun.codemodel.ClassType;
 import com.sun.codemodel.JClass;
@@ -62,7 +65,9 @@ import com.sun.codemodel.JClassAlreadyExistsException;
 import com.sun.codemodel.JCodeModel;
 import com.sun.codemodel.JDefinedClass;
 import com.sun.codemodel.JDocComment;
+import com.sun.codemodel.JExpr;
 import com.sun.codemodel.JFieldVar;
+import com.sun.codemodel.JInvocation;
 import com.sun.codemodel.JMod;
 import com.sun.codemodel.JType;
 
@@ -168,10 +173,6 @@ public class ModelFromSourceBuilder {
 		return type.getName() + "_";
 	}
 
-	private String getMetaModelClassName(final ClassOrInterfaceType type) {
-		return type.getName() + "_";
-	}
-
 	private String getMetaModelClassName(final String className) {
 		return className + "_";
 	}
@@ -221,7 +222,6 @@ public class ModelFromSourceBuilder {
 		for (final BodyDeclaration member : classType.getMembers()) {
 			if (member instanceof FieldDeclaration) {
 				final FieldDeclaration field = (FieldDeclaration) member;
-
 				if (Modifier.isStatic(field.getModifiers())) {
 					continue;
 				}
@@ -264,51 +264,64 @@ public class ModelFromSourceBuilder {
 	        final CompilationUnit cu, final TypeDeclaration classType, final FieldDeclaration field) {
 		final Type fieldType = field.getType();
 		final JClass convertedType = convertType(codeModel, cu, fieldType);
-		final JClass fieldClazz;
-
-		if (convertedType.isPrimitive()) {
-			final JClass rawLLclazz = codeModel.ref(SingularField.class);
-			fieldClazz = rawLLclazz.narrow(baseType, convertedType);
-		} else if (convertedType.isArray()) {
-			final JClass rawLLclazz = codeModel.ref(ArrayField.class);
-			JClass collectionElementType = convertedType.elementType().boxify();
-			while (collectionElementType.isArray()) {
-				// find base type. eg. Boolean[][][][] --> Boolean
-				collectionElementType = collectionElementType.elementType().boxify();
-			}
-			fieldClazz = rawLLclazz.narrow(baseType, convertedType, collectionElementType);
-		} else if (codeModel.ref(Collection.class).isAssignableFrom(convertedType.erasure())) {
-			final List<JClass> typeParams = convertedType.getTypeParameters();
-			JClass collectionElementType;
-			if (typeParams.size() == 1) {
-				// eg. Collection<String> --> String
-				collectionElementType = typeParams.get(0);
-			} else {
-				// eg. Collection --> Object
-				collectionElementType = codeModel.ref(Object.class);
-			}
-			final JClass rawLLclazz = codeModel.ref(PluralField.class);
-			fieldClazz = rawLLclazz.narrow(classCodeModel, convertedType, collectionElementType);
-		} else if (codeModel.ref(Map.class).isAssignableFrom(convertedType.erasure())) {
-			final List<JClass> typeParams = convertedType.getTypeParameters();
-			JClass collectionElementType;
-			if (typeParams.size() == 2) {
-				// eg. Map<String, Boolean> --> Boolean
-				collectionElementType = typeParams.get(1);
-			} else {
-				// eg. Map --> Object
-				collectionElementType = codeModel.ref(Object.class);
-			}
-			final JClass rawLLclazz = codeModel.ref(PluralField.class);
-			fieldClazz = rawLLclazz.narrow(classCodeModel, convertedType, collectionElementType);
-		} else {
-			final JClass rawLLclazz = codeModel.ref(SingularField.class);
-			fieldClazz = rawLLclazz.narrow(baseType, convertedType);
-		}
 
 		for (final VariableDeclarator variable : field.getVariables()) {
-			final JFieldVar f = classCodeModel.field(JMod.PUBLIC | JMod.STATIC | JMod.VOLATILE, fieldClazz,
+			final JClass fieldClazz;
+			final JInvocation fieldInit;
+			if (convertedType.isPrimitive()) {
+				final JClass rawLLclazz = codeModel.ref(SingularField.class);
+				fieldClazz = rawLLclazz.narrow(baseType, convertedType);
+				fieldInit = JExpr._new(codeModel.ref(SingularFieldImpl.class).narrow(new JClass[0]))
+				        .arg(variable.getId().getName());
+			} else if (convertedType.isArray()) {
+				final JClass rawLLclazz = codeModel.ref(ArrayField.class);
+				JClass collectionElementType = convertedType.elementType().boxify();
+				while (collectionElementType.isArray()) {
+					// find base type. eg. Boolean[][][][] --> Boolean
+					collectionElementType = collectionElementType.elementType().boxify();
+				}
+				fieldClazz = rawLLclazz.narrow(baseType, convertedType, collectionElementType);
+				fieldInit = JExpr._new(codeModel.ref(ArrayFieldImpl.class).narrow(new JClass[0]))
+				        .arg(variable.getId().getName());
+			} else if (codeModel.ref(Collection.class).isAssignableFrom(convertedType.erasure())) {
+				final List<JClass> typeParams = convertedType.getTypeParameters();
+				JClass collectionElementType;
+				if (typeParams.size() == 1) {
+					// eg. Collection<String> --> String
+					collectionElementType = typeParams.get(0);
+				} else {
+					// eg. Collection --> Object
+					collectionElementType = codeModel.ref(Object.class);
+				}
+				final JClass rawLLclazz = codeModel.ref(PluralField.class);
+				fieldClazz = rawLLclazz.narrow(baseType, convertedType, collectionElementType);
+				fieldInit = JExpr._new(codeModel.ref(PluralFieldImpl.class).narrow(new JClass[0]))
+				        .arg(variable.getId().getName());
+			} else if (codeModel.ref(Map.class).isAssignableFrom(convertedType.erasure())) {
+				final List<JClass> typeParams = convertedType.getTypeParameters();
+				JClass collectionElementType;
+				if (typeParams.size() == 2) {
+					// eg. Map<String, Boolean> --> Boolean
+					collectionElementType = typeParams.get(1);
+				} else {
+					// eg. Map --> Object
+					collectionElementType = codeModel.ref(Object.class);
+				}
+				final JClass rawLLclazz = codeModel.ref(PluralField.class);
+				fieldClazz = rawLLclazz.narrow(baseType, convertedType, collectionElementType);
+				fieldInit = JExpr._new(codeModel.ref(PluralFieldImpl.class).narrow(new JClass[0]))
+				        .arg(variable.getId().getName());
+			} else {
+				final JClass rawLLclazz = codeModel.ref(SingularField.class);
+				fieldClazz = rawLLclazz.narrow(baseType, convertedType);
+				fieldInit = JExpr._new(codeModel.ref(SingularFieldImpl.class).narrow(new JClass[0]))
+				        .arg(variable.getId().getName());
+				;
+			}
+
+			final JFieldVar f = classCodeModel.field(JMod.PUBLIC | JMod.STATIC | JMod.FINAL, fieldClazz,
 			        variable.getId().getName());
+			f.init(fieldInit);
 			f.javadoc().add(fieldType.toString());
 		}
 	}

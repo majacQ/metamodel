@@ -21,21 +21,34 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package metamodel.field;
+package metamodel.field.impl;
+
+import metamodel.field.MetaField;
 
 /**
- * Base interface for all field-definitions.
+ * Base implementation for all field-definitions.
  *
  * @author madprogger
  *
  * @param <BASE> type of class that declares the field
  * @param <ELEM> type of associated value(s)
  */
-public interface MetaField<BASE, ELEM> {
+public abstract class MetaFieldImpl<BASE, ELEM> implements MetaField<BASE, ELEM> {
+
+	private final String name;
+
 	/**
-	 * Get the name of the field.
+	 * Constructor.
 	 *
-	 * @return the name of the field
+	 * @param name of the field
 	 */
-	String getName();
+	public MetaFieldImpl(final String name) {
+		this.name = name;
+	}
+
+	@Override
+	public String getName() {
+		return name;
+	}
+
 }
