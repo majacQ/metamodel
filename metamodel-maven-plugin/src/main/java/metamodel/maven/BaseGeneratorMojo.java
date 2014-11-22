@@ -41,7 +41,7 @@ import com.sun.codemodel.JCodeModel;
 /**
  * Baseclass for all java-&gt;metamodel generator-mojos.
  * 
- * @author madprogger
+ * @author Michael Kroll
  */
 public abstract class BaseGeneratorMojo extends AbstractMojo {
 

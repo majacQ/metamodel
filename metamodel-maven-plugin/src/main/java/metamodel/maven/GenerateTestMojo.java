@@ -30,7 +30,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
 /**
- * @author madprogger
+ * @author Michael Kroll
  */
 @Mojo(name = "generate-metamodel-test", defaultPhase = LifecyclePhase.GENERATE_TEST_SOURCES)
 public class GenerateTestMojo extends BaseGeneratorMojo {

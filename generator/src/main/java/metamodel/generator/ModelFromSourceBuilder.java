@@ -74,7 +74,7 @@ import com.sun.codemodel.JType;
 /**
  * Builds meta model from source files without compilation.
  *
- * @author madprogger
+ * @author Michael Kroll
  */
 public class ModelFromSourceBuilder {
 

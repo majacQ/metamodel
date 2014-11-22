@@ -31,7 +31,7 @@ import metamodel.maven.test.target.TargetClassInTestFolder_;
 /**
  * Tests that generation in a configured folder was triggered and produced a valid output.
  *
- * @author madprogger
+ * @author Michael Kroll
  */
 public class TargetClassInTestFolderTest {
 

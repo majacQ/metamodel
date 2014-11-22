@@ -30,7 +30,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
 /**
- * @author madprogger
+ * @author Michael Kroll
  */
 @Mojo(name = "generate-metamodel-main", defaultPhase = LifecyclePhase.GENERATE_SOURCES)
 public class GenerateMainMojo extends BaseGeneratorMojo {

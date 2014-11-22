@@ -24,7 +24,7 @@
 package org.example.test.p2;
 
 /**
- * @author madprogger
+ * @author Michael Kroll
  *
  */
 public class SubClassWithSameName extends ClassWithSameName {

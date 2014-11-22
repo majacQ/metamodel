@@ -37,7 +37,7 @@ import org.junit.Test;
 /**
  * Tests AccessorUtil.
  *
- * @author madprogger
+ * @author Michael Kroll
  */
 public class AccessorUtilTest {
 

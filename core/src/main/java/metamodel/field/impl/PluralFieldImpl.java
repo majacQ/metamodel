@@ -29,7 +29,7 @@ import metamodel.field.PluralField;
  * Implementation for 1:n-field-definition. If a field is defined as {@link java.util.Collection} or
  * {@link java.util.Map}, then this kind of field-definition is used.
  *
- * @author madprogger
+ * @author Michael Kroll
  * @param <BASE> type of class that declares the field
  * @param <COL> type of aggregating class, eg. a List or a Map
  * @param <ELEM> type of associated values

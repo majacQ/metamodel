@@ -31,9 +31,9 @@ import metamodel.field.PluralField;
 import metamodel.field.SingularField;
 
 /**
- * Provides access to fields-values of objects using reflection and metamodel-description of th class.
+ * Provides access to fields-values of objects using reflection and metamodel-description of the class.
  *
- * @author madprogger
+ * @author Michael Kroll
  */
 public class AccessorUtil {
 
