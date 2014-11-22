@@ -32,24 +32,45 @@
 					<execution>
 						<id>metamodel generation</id>
 						<goals>
-							<goal>generate-metamodel</goal>
+							<goal>generate-metamodel-main</goal>
 						</goals>
-						<configuration>
-							<!-- <classFileDir>${project.build.directory}</classFileDir> -->
-						</configuration>
+					</execution>
+					<execution>
+						<id>test source metamodel generation</id>
+						<goals>
+							<goal>generate-metamodel-test</goal>
+						</goals>
 					</execution>
 				</executions>
 			</plugin>
 			<plugin>
-				<artifactId>maven-compiler-plugin</artifactId>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<version>1.9.1</version>
 				<executions>
 					<execution>
-						<id>normal</id>
-						<phase>compile</phase>
+						<id>generate-sources</id>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>add-source</goal>
+						</goals>
+						<configuration>
+							<sources>
+								<source>${project.build.directory}/generated-metamodel-main</source>
+							</sources>
+						</configuration>
 					</execution>
 					<execution>
-						<id>post-metamodel</id>
-						<phase>process-classes</phase>
+						<id>generate-test-sources</id>
+						<phase>generate-test-sources</phase>
+						<goals>
+							<goal>add-test-source</goal>
+						</goals>
+						<configuration>
+							<sources>
+								<source>${project.build.directory}/generated-metamodel-test</source>
+							</sources>
+						</configuration>
 					</execution>
 				</executions>
 			</plugin>
