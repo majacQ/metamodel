@@ -21,32 +21,49 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package metamodel.maven.test;
+package metamodel.access;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertEquals;
+
+import java.util.Arrays;
+
+import metamodel.access.target.POJO;
+import metamodel.access.target.POJO_;
 
 import org.junit.Test;
 
 /**
- * Tests that generation was triggered and produced a valid output.
+ * Tests AccessorUtil.
  *
  * @author madprogger
  */
-public class TargetTest {
+public class AccessorUtilTest {
 
 	@Test
-	public void testClassPresence() throws Exception {
-		Target_.class.getName();
+	public void testPOJOSetterGetter() throws Exception {
+		final POJO pojo = new POJO();
+		pojo.setMyint(42);
+		pojo.setMyInteger(23);
+
+		assertEquals(new Integer(42), AccessorUtil.get(pojo, POJO_.myint));
+		assertEquals(new Integer(23), AccessorUtil.get(pojo, POJO_.myInteger));
+
+		AccessorUtil.set(pojo, POJO_.myint, 13);
+		AccessorUtil.set(pojo, POJO_.myInteger, 7);
+
+		assertEquals(13, pojo.getMyint());
+		assertEquals(Integer.valueOf(7), pojo.getMyInteger());
 	}
 
 	@Test
-	public void testFieldPresence() throws Exception {
-		Target_.class.getDeclaredField("intField");
-	}
+	public void testPOJOWildcardGetterSetter() throws Exception {
+		final POJO pojo = new POJO();
+		pojo.setWildcardList(Arrays.asList(new String("Charly!"), new Integer(42)));
 
-	@Test
-	public void testFieldValuePresence() throws Exception {
-		assertNotNull(Target_.intField);
-		assertNotNull(Target_.intField.getName());
+		assertEquals(Arrays.asList(new String("Charly!"), new Integer(42)), AccessorUtil.get(pojo, POJO_.wildcardList));
+
+		AccessorUtil.set(pojo, POJO_.wildcardList, Arrays.asList(new String("Nope!"), new Integer(7)));
+
+		assertEquals(Arrays.asList(new String("Nope!"), new Integer(7)), pojo.getWildcardList());
 	}
 }

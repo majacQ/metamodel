@@ -6,16 +6,21 @@
 		<artifactId>parent</artifactId>
 		<version>0.1.0-SNAPSHOT</version>
 	</parent>
-	<artifactId>metamodel-maven-plugin-test</artifactId>
+	<artifactId>accessor</artifactId>
 	<packaging>jar</packaging>
 
-	<name>metamodel - maven - plugin - test</name>
+	<name>metamodel - accessors</name>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 
 	<dependencies>
+		<dependency>
+			<groupId>metamodel</groupId>
+			<artifactId>core</artifactId>
+		</dependency>
+
 		<dependency>
 			<groupId>metamodel</groupId>
 			<artifactId>metamodel-maven-plugin</artifactId>
@@ -30,12 +35,6 @@
 				<version>0.1.0-SNAPSHOT</version>
 				<executions>
 					<execution>
-						<id>metamodel generation</id>
-						<goals>
-							<goal>generate-metamodel-main</goal>
-						</goals>
-					</execution>
-					<execution>
 						<id>test source metamodel generation</id>
 						<goals>
 							<goal>generate-metamodel-test</goal>
@@ -49,20 +48,7 @@
 				<version>1.9.1</version>
 				<executions>
 					<execution>
-						<id>generate-sources</id>
 						<phase>generate-sources</phase>
-						<goals>
-							<goal>add-source</goal>
-						</goals>
-						<configuration>
-							<sources>
-								<source>${project.build.directory}/generated-metamodel-main</source>
-							</sources>
-						</configuration>
-					</execution>
-					<execution>
-						<id>generate-test-sources</id>
-						<phase>generate-test-sources</phase>
 						<goals>
 							<goal>add-test-source</goal>
 						</goals>
@@ -75,6 +61,6 @@
 				</executions>
 			</plugin>
 		</plugins>
-	</build>
+	</build>	
 
 </project>
