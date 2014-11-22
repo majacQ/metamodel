@@ -1,0 +1,80 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>metamodel</groupId>
+		<artifactId>parent</artifactId>
+		<version>0.1.0-SNAPSHOT</version>
+	</parent>
+	<artifactId>metamodel-maven-plugin-test</artifactId>
+	<packaging>jar</packaging>
+
+	<name>metamodel - maven - plugin - test</name>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>metamodel</groupId>
+			<artifactId>metamodel-maven-plugin</artifactId>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>metamodel</groupId>
+				<artifactId>metamodel-maven-plugin</artifactId>
+				<version>0.1.0-SNAPSHOT</version>
+				<executions>
+					<execution>
+						<id>metamodel generation</id>
+						<goals>
+							<goal>generate-metamodel-main</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>test source metamodel generation</id>
+						<goals>
+							<goal>generate-metamodel-test</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<version>1.9.1</version>
+				<executions>
+					<execution>
+						<id>generate-sources</id>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>add-source</goal>
+						</goals>
+						<configuration>
+							<sources>
+								<source>${project.build.directory}/generated-metamodel-main</source>
+							</sources>
+						</configuration>
+					</execution>
+					<execution>
+						<id>generate-test-sources</id>
+						<phase>generate-test-sources</phase>
+						<goals>
+							<goal>add-test-source</goal>
+						</goals>
+						<configuration>
+							<sources>
+								<source>${project.build.directory}/generated-metamodel-test</source>
+							</sources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>
