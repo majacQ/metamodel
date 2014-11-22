@@ -21,32 +21,28 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package metamodel.core;
-
-import java.io.File;
-import java.io.IOException;
-
-import com.sun.codemodel.JCodeModel;
+package metamodel.maven.test;
 
 /**
- * Writes generated metamodel to specified folder.
+ * Target-Class for testing metamodel-generation and -access.
  *
  * @author madprogger
- * @see ModelBuilder
  */
-public class ModelWriter {
+public class Target {
+
+	private int intField;
 
 	/**
-	 * Writes generated metamodel as source files to specified folder.
-	 *
-	 * @param codeModel metamodel
-	 * @param targetDir target directory. Will be created if not existent.
-	 * @throws IOException error writing source-files
+	 * @return the intField
 	 */
-	public void write(final JCodeModel codeModel, final File targetDir) throws IOException {
-		if (!targetDir.exists()) {
-			targetDir.mkdirs();
-		}
-		codeModel.build(targetDir);
+	public int getIntField() {
+		return intField;
+	}
+
+	/**
+	 * @param intField the intField to set
+	 */
+	public void setIntField(final int intField) {
+		this.intField = intField;
 	}
 }

@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package metamodel.core;
+package metamodel.generator;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.GenericArrayType;
@@ -57,7 +57,7 @@ import com.sun.codemodel.JType;
  * @see SingularField
  * @see PluralField
  */
-public class ModelBuilder {
+public class ModelFromClassBuilder {
 
 	/**
 	 * Build metamodel for classes.
@@ -182,13 +182,23 @@ public class ModelBuilder {
 			if (field.getGenericType() instanceof GenericArrayType) {
 				final GenericArrayType genericArrayType = (GenericArrayType) field.getGenericType();
 				final JClass rawLLclazz = codeModel.ref(ArrayField.class);
-				final JClass fieldClazz = rawLLclazz.narrow(baseType,
-				        convertType(codeModel, genericArrayType.getGenericComponentType()));
+				final JClass convertedType = convertType(codeModel, genericArrayType.getGenericComponentType());
+				JClass collectionElementType = convertedType;
+				while (collectionElementType.isArray()) {
+					// find base type. eg. Boolean[][][][] --> Boolean
+					collectionElementType = collectionElementType.elementType().boxify();
+				}
+				final JClass fieldClazz = rawLLclazz.narrow(baseType, convertedType, collectionElementType);
 				classCodeModel.field(JMod.PUBLIC | JMod.STATIC | JMod.VOLATILE, fieldClazz, field.getName());
 			} else {
 				final JClass rawLLclazz = codeModel.ref(ArrayField.class);
-				final JClass fieldClazz = rawLLclazz.narrow(baseType,
-				        convertType(codeModel, fieldType.getComponentType()));
+				final JClass convertedType = convertType(codeModel, fieldType.getComponentType());
+				JClass collectionElementType = convertedType;
+				while (collectionElementType.isArray()) {
+					// find base type. eg. Boolean[][][][] --> Boolean
+					collectionElementType = collectionElementType.elementType().boxify();
+				}
+				final JClass fieldClazz = rawLLclazz.narrow(baseType, convertedType, collectionElementType);
 				classCodeModel.field(JMod.PUBLIC | JMod.STATIC | JMod.VOLATILE, fieldClazz, field.getName());
 			}
 		} else {

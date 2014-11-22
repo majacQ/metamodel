@@ -99,9 +99,8 @@ public class POJOTestClass {
 	private Map rawMap;
 
     // custom types
-	private POJOTestClass2<String> custom;
-	private POJOTestClass2<String>[] customArray;
-	private POJOTestClass2<String[]>[] customWithArray;
+	private POJOTestClass2<List<Set<String>>> custom;
+	private POJOTestClass2<List<Set<String>>>[] customArray;
 
 	// crazy definition
 	private Map<? extends List<String[]>[], ? extends List<? extends POJOTestClass[]>[]>[] customWildcardExtendsGenericMapWithArrays;

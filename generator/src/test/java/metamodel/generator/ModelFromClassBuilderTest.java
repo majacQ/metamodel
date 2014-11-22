@@ -23,30 +23,38 @@
  */
 package metamodel.generator;
 
-import java.io.File;
-import java.io.IOException;
+import static org.hamcrest.CoreMatchers.hasItem;
+import static org.hamcrest.CoreMatchers.not;
+import static org.junit.Assert.assertThat;
+
+import java.util.HashSet;
+import java.util.Set;
+
+import org.example.test.POJOTestClass;
+import org.junit.Test;
 
 import com.sun.codemodel.JCodeModel;
+import com.sun.codemodel.JDefinedClass;
 
 /**
- * Writes generated metamodel to specified folder.
- *
- * @author madprogger
- * @see ModelFromClassBuilder
+ * Unit test for ModelFromClassBuilder.
  */
-public class ModelWriter {
+public class ModelFromClassBuilderTest {
 
-	/**
-	 * Writes generated metamodel as source files to specified folder.
-	 *
-	 * @param codeModel metamodel
-	 * @param targetDir target directory. Will be created if not existent.
-	 * @throws IOException error writing source-files
-	 */
-	public void write(final JCodeModel codeModel, final File targetDir) throws IOException {
-		if (!targetDir.exists()) {
-			targetDir.mkdirs();
-		}
-		codeModel.build(targetDir);
+	@Test
+	public void testPOJOModelGeneration() throws Exception {
+		final Set<Class<?>> classes = new HashSet<>();
+		classes.add(POJOTestClass.class);
+		final JCodeModel codeModel = new ModelFromClassBuilder().buildCodeModel(classes);
+		final JDefinedClass metaClass = codeModel._getClass(POJOTestClass.class.getName() + "_");
+
+		assertThat(metaClass.fields().keySet(), hasItem("string"));
+		assertThat(metaClass.fields().keySet(), hasItem("bool"));
+		assertThat(metaClass.fields().keySet(), hasItem("boolPrim"));
+		assertThat(metaClass.fields().keySet(), hasItem("collection"));
+		assertThat(metaClass.fields().keySet(), hasItem("list"));
+		assertThat(metaClass.fields().keySet(), hasItem("set"));
+		assertThat(metaClass.fields().keySet(), hasItem("map"));
+		assertThat(metaClass.fields().keySet(), not(hasItem("staticField")));
 	}
 }

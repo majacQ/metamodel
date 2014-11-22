@@ -29,7 +29,8 @@ package metamodel.field;
  *
  * @author madprogger
  * @param <BASE> type of class that declares the field
- * @param <ELEM> type of array-elements
+ * @param <COL> type of aggregating array, eg. Boolean[][][]
+ * @param <ELEM> type of associated values
  */
-public interface ArrayField<BASE, ELEM> extends MetaField<BASE, ELEM> {
+public interface ArrayField<BASE, COL, ELEM> extends PluralField<BASE, COL, ELEM> {
 }

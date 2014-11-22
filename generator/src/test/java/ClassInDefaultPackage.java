@@ -21,17 +21,12 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package org.example.test;
-
-import java.util.List;
-import java.util.Set;
 
 /**
- *
  * @author madprogger
+ *
  */
-public class POJOTestClass2<T extends List<? extends Set<String>>> {
+public class ClassInDefaultPackage {
 
-	@SuppressWarnings("unused")
-	private String field;
+	private int intField;
 }

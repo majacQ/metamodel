@@ -52,7 +52,7 @@ public class ModelWriterTest {
 		final Set<Class<?>> classes = new HashSet<>();
 		classes.add(POJOTestClass.class);
 		classes.add(POJOTestClass2.class);
-		final JCodeModel codeModel = new ModelBuilder().buildCodeModel(classes);
+		final JCodeModel codeModel = new ModelFromClassBuilder().buildCodeModel(classes);
 		new ModelWriter().write(codeModel, new File("target/generated-pojo-metamodel"));
 	}
 
@@ -62,7 +62,7 @@ public class ModelWriterTest {
 		classes.add(SubTestClass.class);
 		classes.add(POJOTestClass.class);
 		classes.add(POJOTestClass2.class);
-		final JCodeModel codeModel = new ModelBuilder().buildCodeModel(classes);
+		final JCodeModel codeModel = new ModelFromClassBuilder().buildCodeModel(classes);
 		new ModelWriter().write(codeModel, new File("target/generated-pojo-metamodel"));
 	}
 
@@ -70,7 +70,7 @@ public class ModelWriterTest {
 	public void testSubClassWithMissingSuperClassModelGeneration() throws Exception {
 		final Set<Class<?>> classes = new HashSet<>();
 		classes.add(SubTestClass2.class);
-		final JCodeModel codeModel = new ModelBuilder().buildCodeModel(classes);
+		final JCodeModel codeModel = new ModelFromClassBuilder().buildCodeModel(classes);
 		new ModelWriter().write(codeModel, new File("target/generated-pojo-metamodel"));
 	}
 
@@ -78,7 +78,7 @@ public class ModelWriterTest {
 	public void testExplicitInnerClassGeneration_NotAllowed() throws Exception {
 		final Set<Class<?>> classes = new HashSet<>();
 		classes.add(ClassWithInnerClasses.InnerClass.class);
-		new ModelBuilder().buildCodeModel(classes);
+		new ModelFromClassBuilder().buildCodeModel(classes);
 	}
 
 	@Test
@@ -86,7 +86,7 @@ public class ModelWriterTest {
 		final Set<Class<?>> classes = new HashSet<>();
 		classes.add(ClassWithInnerClasses3.class);
 		classes.add(ClassWithInnerClasses2.class);
-		final JCodeModel codeModel = new ModelBuilder().buildCodeModel(classes);
+		final JCodeModel codeModel = new ModelFromClassBuilder().buildCodeModel(classes);
 		new ModelWriter().write(codeModel, new File("target/generated-pojo-metamodel"));
 	}
 
@@ -94,7 +94,7 @@ public class ModelWriterTest {
 	public void testImplicitInnerClassGeneration_NoAnonymousClasses() throws Exception {
 		final Set<Class<?>> classes = new HashSet<>();
 		classes.add(ClassWithAnonymousInnerClass.class);
-		final JCodeModel codeModel = new ModelBuilder().buildCodeModel(classes);
+		final JCodeModel codeModel = new ModelFromClassBuilder().buildCodeModel(classes);
 		new ModelWriter().write(codeModel, new File("target/generated-pojo-metamodel"));
 	}
 
@@ -102,7 +102,7 @@ public class ModelWriterTest {
 	public void testEnum() throws Exception {
 		final Set<Class<?>> classes = new HashSet<>();
 		classes.add(TestEnum.class);
-		final JCodeModel codeModel = new ModelBuilder().buildCodeModel(classes);
+		final JCodeModel codeModel = new ModelFromClassBuilder().buildCodeModel(classes);
 		new ModelWriter().write(codeModel, new File("target/generated-pojo-metamodel"));
 	}
 
@@ -110,7 +110,7 @@ public class ModelWriterTest {
 	public void testInterface() throws Exception {
 		final Set<Class<?>> classes = new HashSet<>();
 		classes.add(TestInterface.class);
-		final JCodeModel codeModel = new ModelBuilder().buildCodeModel(classes);
+		final JCodeModel codeModel = new ModelFromClassBuilder().buildCodeModel(classes);
 		new ModelWriter().write(codeModel, new File("target/generated-pojo-metamodel"));
 	}
 
@@ -118,7 +118,7 @@ public class ModelWriterTest {
 	public void testAnnotation() throws Exception {
 		final Set<Class<?>> classes = new HashSet<>();
 		classes.add(TestAnnotation.class);
-		final JCodeModel codeModel = new ModelBuilder().buildCodeModel(classes);
+		final JCodeModel codeModel = new ModelFromClassBuilder().buildCodeModel(classes);
 		new ModelWriter().write(codeModel, new File("target/generated-pojo-metamodel"));
 	}
 }
