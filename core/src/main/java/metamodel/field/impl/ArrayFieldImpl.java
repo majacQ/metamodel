@@ -41,8 +41,9 @@ public class ArrayFieldImpl<BASE, COL, ELEM> extends PluralFieldImpl<BASE, COL, 
 	 * Constructor.
 	 *
 	 * @param name of the field
+	 * @param declaringClass class that declares the field
 	 */
-	public ArrayFieldImpl(final String name) {
-		super(name);
+	public ArrayFieldImpl(final String name, final Class<BASE> declaringClass) {
+		super(name, declaringClass);
 	}
 }

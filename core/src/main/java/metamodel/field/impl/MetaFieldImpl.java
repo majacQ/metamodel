@@ -36,14 +36,17 @@ import metamodel.field.MetaField;
 public abstract class MetaFieldImpl<BASE, ELEM> implements MetaField<BASE, ELEM> {
 
 	private final String name;
+	private final Class<BASE> declaringClass;
 
 	/**
 	 * Constructor.
 	 *
 	 * @param name of the field
+	 * @param declaringClass class that declares the field
 	 */
-	public MetaFieldImpl(final String name) {
+	public MetaFieldImpl(final String name, final Class<BASE> declaringClass) {
 		this.name = name;
+		this.declaringClass = declaringClass;
 	}
 
 	@Override
@@ -51,4 +54,8 @@ public abstract class MetaFieldImpl<BASE, ELEM> implements MetaField<BASE, ELEM>
 		return name;
 	}
 
+	@Override
+	public Class<BASE> getDeclaringClass() {
+		return declaringClass;
+	}
 }

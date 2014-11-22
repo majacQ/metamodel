@@ -272,7 +272,7 @@ public class ModelFromSourceBuilder {
 				final JClass rawLLclazz = codeModel.ref(SingularField.class);
 				fieldClazz = rawLLclazz.narrow(baseType, convertedType);
 				fieldInit = JExpr._new(codeModel.ref(SingularFieldImpl.class).narrow(new JClass[0]))
-				        .arg(variable.getId().getName());
+				        .arg(variable.getId().getName()).arg(baseType.dotclass());
 			} else if (convertedType.isArray()) {
 				final JClass rawLLclazz = codeModel.ref(ArrayField.class);
 				JClass collectionElementType = convertedType.elementType().boxify();
@@ -282,7 +282,7 @@ public class ModelFromSourceBuilder {
 				}
 				fieldClazz = rawLLclazz.narrow(baseType, convertedType, collectionElementType);
 				fieldInit = JExpr._new(codeModel.ref(ArrayFieldImpl.class).narrow(new JClass[0]))
-				        .arg(variable.getId().getName());
+				        .arg(variable.getId().getName()).arg(baseType.dotclass());
 			} else if (codeModel.ref(Collection.class).isAssignableFrom(convertedType.erasure())) {
 				final List<JClass> typeParams = convertedType.getTypeParameters();
 				JClass collectionElementType;
@@ -296,7 +296,7 @@ public class ModelFromSourceBuilder {
 				final JClass rawLLclazz = codeModel.ref(PluralField.class);
 				fieldClazz = rawLLclazz.narrow(baseType, convertedType, collectionElementType);
 				fieldInit = JExpr._new(codeModel.ref(PluralFieldImpl.class).narrow(new JClass[0]))
-				        .arg(variable.getId().getName());
+				        .arg(variable.getId().getName()).arg(baseType.dotclass());
 			} else if (codeModel.ref(Map.class).isAssignableFrom(convertedType.erasure())) {
 				final List<JClass> typeParams = convertedType.getTypeParameters();
 				JClass collectionElementType;
@@ -310,12 +310,12 @@ public class ModelFromSourceBuilder {
 				final JClass rawLLclazz = codeModel.ref(PluralField.class);
 				fieldClazz = rawLLclazz.narrow(baseType, convertedType, collectionElementType);
 				fieldInit = JExpr._new(codeModel.ref(PluralFieldImpl.class).narrow(new JClass[0]))
-				        .arg(variable.getId().getName());
+				        .arg(variable.getId().getName()).arg(baseType.dotclass());
 			} else {
 				final JClass rawLLclazz = codeModel.ref(SingularField.class);
 				fieldClazz = rawLLclazz.narrow(baseType, convertedType);
 				fieldInit = JExpr._new(codeModel.ref(SingularFieldImpl.class).narrow(new JClass[0]))
-				        .arg(variable.getId().getName());
+				        .arg(variable.getId().getName()).arg(baseType.dotclass());
 				;
 			}
 

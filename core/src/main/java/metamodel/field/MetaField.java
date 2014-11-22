@@ -38,4 +38,11 @@ public interface MetaField<BASE, ELEM> {
 	 * @return the name of the field
 	 */
 	String getName();
+
+	/**
+	 * Get class that declares the field.
+	 *
+	 * @return class that declares the field
+	 */
+	Class<BASE> getDeclaringClass();
 }

@@ -39,8 +39,9 @@ public class SingularFieldImpl<BASE, ELEM> extends MetaFieldImpl<BASE, ELEM> imp
 	 * Constructor.
 	 *
 	 * @param name of the field
+	 * @param declaringClass class that declares the field
 	 */
-	public SingularFieldImpl(final String name) {
-		super(name);
+	public SingularFieldImpl(final String name, final Class<BASE> declaringClass) {
+		super(name, declaringClass);
 	}
 }

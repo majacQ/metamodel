@@ -40,8 +40,9 @@ public class PluralFieldImpl<BASE, COL, ELEM> extends MetaFieldImpl<BASE, ELEM> 
 	 * Constructor.
 	 *
 	 * @param name of the field
+	 * @param declaringClass class that declares the field
 	 */
-	public PluralFieldImpl(final String name) {
-		super(name);
+	public PluralFieldImpl(final String name, final Class<BASE> declaringClass) {
+		super(name, declaringClass);
 	}
 }
