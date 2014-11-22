@@ -29,6 +29,8 @@ import java.util.Arrays;
 
 import metamodel.access.target.POJO;
 import metamodel.access.target.POJO_;
+import metamodel.access.target.SubClassWithSameFieldName;
+import metamodel.access.target.SubClassWithSameFieldName_;
 
 import org.junit.Test;
 
@@ -65,5 +67,37 @@ public class AccessorUtilTest {
 		AccessorUtil.set(pojo, POJO_.wildcardList, Arrays.asList(new String("Nope!"), new Integer(7)));
 
 		assertEquals(Arrays.asList(new String("Nope!"), new Integer(7)), pojo.getWildcardList());
+	}
+
+	@Test
+	public void testSubClassBaseClassGetterSetter() throws Exception {
+		final SubClassWithSameFieldName pojo = new SubClassWithSameFieldName();
+
+		pojo.setMyInteger(42);
+		assertEquals(new Integer(42), AccessorUtil.get(pojo, POJO_.myInteger));
+
+		AccessorUtil.set(pojo, POJO_.myInteger, 7);
+		assertEquals(Integer.valueOf(7), pojo.getMyInteger());
+
+		AccessorUtil.set(pojo, SubClassWithSameFieldName_.myInteger, 13);
+		assertEquals(Integer.valueOf(13), pojo.getMyInteger());
+
+		pojo.setMyInteger(42);
+		assertEquals(new Integer(42), AccessorUtil.get(pojo, SubClassWithSameFieldName_.myInteger));
+	}
+
+	@Test
+	public void testSubClassHasSameFieldNameAsBaseClassGetterSetter() throws Exception {
+		final SubClassWithSameFieldName pojo = new SubClassWithSameFieldName();
+
+		pojo.setMyint(42);
+		pojo.sub_setMyint(23);
+		assertEquals(new Integer(42), AccessorUtil.get(pojo, POJO_.myint));
+		assertEquals(new Integer(23), AccessorUtil.get(pojo, SubClassWithSameFieldName_.myint));
+
+		AccessorUtil.set(pojo, POJO_.myint, 7);
+		AccessorUtil.set(pojo, SubClassWithSameFieldName_.myint, 13);
+		assertEquals(7, pojo.getMyint());
+		assertEquals(13, pojo.sub_getMyint());
 	}
 }

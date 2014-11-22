@@ -41,7 +41,7 @@ public class AccessorUtil {
 	        final SingularField<BASE, ELEM> fieldDefinition,
 	        final ELEM value) throws NoSuchFieldException, SecurityException, IllegalArgumentException,
 	        IllegalAccessException {
-		final Field field = getAccessibleField(object.getClass(), fieldDefinition);
+		final Field field = getAccessibleField(fieldDefinition);
 		field.set(object, value);
 	}
 
@@ -49,7 +49,7 @@ public class AccessorUtil {
 	        final ArrayField<BASE, COLL, ELEM> fieldDefinition,
 	        final COLL value) throws NoSuchFieldException, SecurityException, IllegalArgumentException,
 	        IllegalAccessException {
-		final Field field = getAccessibleField(object.getClass(), fieldDefinition);
+		final Field field = getAccessibleField(fieldDefinition);
 		field.set(object, value);
 	}
 
@@ -57,44 +57,43 @@ public class AccessorUtil {
 	        final PluralField<BASE, COLL, ELEM> fieldDefinition,
 	        final COLL value) throws NoSuchFieldException, SecurityException, IllegalArgumentException,
 	        IllegalAccessException {
-		final Field field = getAccessibleField(object.getClass(), fieldDefinition);
+		final Field field = getAccessibleField(fieldDefinition);
 		field.set(object, value);
 	}
 
 	@SuppressWarnings("unchecked")
 	public static <BASE, ELEM> ELEM get(final BASE object, final SingularField<BASE, ELEM> fieldDefinition)
 	        throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
-		final Field field = getAccessibleField(object.getClass(), fieldDefinition);
+		final Field field = getAccessibleField(fieldDefinition);
 		return (ELEM) field.get(object);
 	}
 
 	@SuppressWarnings("unchecked")
 	public static <BASE, COLL, ELEM> COLL get(final BASE object, final ArrayField<BASE, COLL, ELEM> fieldDefinition)
 	        throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
-		final Field field = getAccessibleField(object.getClass(), fieldDefinition);
+		final Field field = getAccessibleField(fieldDefinition);
 		return (COLL) field.get(object);
 	}
 
 	@SuppressWarnings("unchecked")
 	public static <BASE, COLL, ELEM> COLL get(final BASE object, final PluralField<BASE, COLL, ELEM> fieldDefinition)
 	        throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
-		final Field field = getAccessibleField(object.getClass(), fieldDefinition);
+		final Field field = getAccessibleField(fieldDefinition);
 		return (COLL) field.get(object);
 	}
 
 	/**
 	 * Get Field of Class as defined by metamodel field definition.
 	 *
-	 * @param clazz target class
 	 * @param fieldDefinition metamodel field definition
 	 * @return Field
 	 * @throws NoSuchFieldException
 	 * @throws SecurityException
 	 */
-	private static Field getAccessibleField(final Class<?> clazz, final MetaField<?, ?> fieldDefinition)
+	private static Field getAccessibleField(final MetaField<?, ?> fieldDefinition)
 	        throws NoSuchFieldException, SecurityException {
 		final String fieldName = fieldDefinition.getName();
-		final Field field = clazz.getDeclaredField(fieldName);
+		final Field field = fieldDefinition.getDeclaringClass().getDeclaredField(fieldName);
 		if (!field.isAccessible()) {
 			field.setAccessible(true);
 		}
