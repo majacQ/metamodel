@@ -27,6 +27,7 @@ import japa.parser.JavaParser;
 import japa.parser.ParseException;
 import japa.parser.ast.CompilationUnit;
 import japa.parser.ast.ImportDeclaration;
+import japa.parser.ast.Node;
 import japa.parser.ast.body.BodyDeclaration;
 import japa.parser.ast.body.ClassOrInterfaceDeclaration;
 import japa.parser.ast.body.EnumDeclaration;
@@ -43,20 +44,24 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import metamodel.field.ArrayField;
 import metamodel.field.PluralField;
 import metamodel.field.SingularField;
 
+import com.sun.codemodel.ClassType;
 import com.sun.codemodel.JClass;
 import com.sun.codemodel.JClassAlreadyExistsException;
 import com.sun.codemodel.JCodeModel;
 import com.sun.codemodel.JDefinedClass;
+import com.sun.codemodel.JDocComment;
 import com.sun.codemodel.JFieldVar;
 import com.sun.codemodel.JMod;
 import com.sun.codemodel.JType;
@@ -75,8 +80,10 @@ public class ModelFromSourceBuilder {
 	 * @return metamodel
 	 */
 	public JCodeModel buildCodeModel(final Set<File> sourceFiles) {
-		final Map<TypeDeclaration, JDefinedClass> definedClasses = new HashMap<>();
+		final Map<String, JDefinedClass> definedClasses = new HashMap<>();
+		final Map<JDefinedClass, String> classesToExtend = new HashMap<>();
 		final JCodeModel codeModel = new JCodeModel();
+		// 1. build code model for all classes, excluding "extends"-definitions (they are added in a later step)
 		for (final File sourceFile : sourceFiles) {
 			try (FileInputStream in = new FileInputStream(sourceFile)) {
 
@@ -85,40 +92,132 @@ public class ModelFromSourceBuilder {
 				for (final TypeDeclaration type : cu.getTypes()) {
 					if (type instanceof ClassOrInterfaceDeclaration
 					        || type instanceof EnumDeclaration) {
-						final JDefinedClass classCodeModel = codeModel._class(getFullClassName(cu, type));
-						defineClass(codeModel, classCodeModel, cu, type, definedClasses);
+						final JDefinedClass classCodeModel =
+						        codeModel._class(JMod.PUBLIC | JMod.ABSTRACT, getFullMetaModelClassName(cu, type),
+						                ClassType.CLASS);
+
+						final JClass baseType = findType(codeModel, cu, type.getName());
+						defineClass(codeModel, classCodeModel, baseType, cu, type, definedClasses, classesToExtend);
 					}
 				}
-
 			} catch (final IOException | ParseException | JClassAlreadyExistsException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				throw new RuntimeException(e);
 			}
 		}
+
+		// 2. run through all classes that were defined and add "extends" where possible/needed
+		for (final Entry<JDefinedClass, String> entry : classesToExtend.entrySet()) {
+			final JDefinedClass classCodeModel = entry.getKey();
+			final String wantedSuperClassName = entry.getValue();
+			final List<JDefinedClass> candidates = findCandidates(definedClasses, wantedSuperClassName);
+			if (candidates.isEmpty()) {
+				System.out.println("Class " + classCodeModel.fullName() + " has superclass "
+				        + wantedSuperClassName + " which is not included in generation context.");
+				final JDocComment javadoc = classCodeModel.javadoc();
+				javadoc.add("Class " + classCodeModel.fullName() + " has superclass " + wantedSuperClassName
+				        + " which is not included in generation context.");
+			} else if (candidates.size() == 1) {
+				classCodeModel._extends(candidates.get(0));
+			} else {
+				// arghh, more than one candidate :(
+				// well, last try: search for candidate with same package name as subclass
+				final List<JDefinedClass> candidatesInSamePackage = new ArrayList<>();
+				for (final JDefinedClass candidate : candidates) {
+					if (classCodeModel.getPackage().name().equals(candidate.getPackage().name())) {
+						candidatesInSamePackage.add(candidate);
+					}
+				}
+				if (candidatesInSamePackage.size() == 1) {
+					// yay
+					classCodeModel._extends(candidatesInSamePackage.get(0));
+				} else {
+					System.out.println("Class " + classCodeModel.fullName() + " has superclass "
+					        + wantedSuperClassName + " which was found more than once in generation context.");
+					final JDocComment javadoc = classCodeModel.javadoc();
+					javadoc.add("Class " + classCodeModel.fullName() + " has superclass " + wantedSuperClassName
+					        + " which was found more than once in generation context.");
+				}
+			}
+		}
+
 		return codeModel;
 	}
 
-	private String getFullClassName(final CompilationUnit cu, final TypeDeclaration type) {
+	private List<JDefinedClass> findCandidates(final Map<String, JDefinedClass> definedClasses,
+	        final String simpleClassName) {
+		final List<JDefinedClass> result = new ArrayList<>();
+		for (final JDefinedClass definedClass : definedClasses.values()) {
+			if (simpleClassName.equals(definedClass.name())
+			        || simpleClassName.equals(definedClass.fullName())) {
+				result.add(definedClass);
+			}
+		}
+		return result;
+	}
+
+	private String getFullMetaModelClassName(final CompilationUnit cu, final TypeDeclaration type) {
 		if (cu.getPackage() != null) {
 			final String packageName = cu.getPackage().getName().toString();
-			return packageName + "." + type.getName() + "_";
+			return packageName + "." + getMetaModelClassName(type);
 		} else {
-			return type.getName() + "_";
+			return getMetaModelClassName(type);
 		}
 	}
 
-	/**
-	 * @param codeModel
-	 * @param classCodeModel
-	 * @param cu
-	 * @param type
-	 * @param definedClasses
-	 */
-	private void defineClass(final JCodeModel codeModel, final JDefinedClass classCodeModel,
-	        final CompilationUnit cu, final TypeDeclaration classType,
-	        final Map<TypeDeclaration, JDefinedClass> definedClasses) {
+	private String getMetaModelClassName(final TypeDeclaration type) {
+		return type.getName() + "_";
+	}
 
-		final JClass baseType = findType(codeModel, cu, classType.getName());
+	private String getMetaModelClassName(final ClassOrInterfaceType type) {
+		return type.getName() + "_";
+	}
+
+	private String getMetaModelClassName(final String className) {
+		return className + "_";
+	}
+
+	private String getFullClassName(final Node type) {
+		String result;
+		if (type instanceof ClassOrInterfaceType) {
+			result = ((ClassOrInterfaceType) type).getName();
+		} else if (type instanceof ClassOrInterfaceDeclaration) {
+			result = ((ClassOrInterfaceDeclaration) type).getName();
+		} else {
+			throw new IllegalArgumentException("unknown starting type found while building full type name for " + type);
+		}
+		Node parent = type.getParentNode();
+		while (parent != null) {
+			if (parent instanceof ClassOrInterfaceType) {
+				result = ((ClassOrInterfaceType) parent).getName() + "." + result;
+			} else if (parent instanceof TypeDeclaration) {
+				result = ((TypeDeclaration) parent).getName() + "." + result;
+			} else if (parent instanceof CompilationUnit) {
+				if (((CompilationUnit) parent).getPackage() == null) {
+					return result;
+				}
+				result = ((CompilationUnit) parent).getPackage().getName().toString() + "." + result;
+				return result;
+			} else {
+				throw new IllegalArgumentException("unknown type found while building full type name for " + type
+				        + ": " + parent);
+			}
+			parent = parent.getParentNode();
+		}
+		return result;
+	}
+
+	private void defineClass(final JCodeModel codeModel, final JDefinedClass classCodeModel, final JClass baseType,
+	        final CompilationUnit cu, final TypeDeclaration classType, final Map<String, JDefinedClass> definedClasses,
+	        final Map<JDefinedClass, String> classesToExtend) {
+
+		if (classType instanceof ClassOrInterfaceDeclaration) {
+			final ClassOrInterfaceDeclaration clazz = (ClassOrInterfaceDeclaration) classType;
+			if (clazz.getExtends() != null) {
+				final String resolvedTypeName = resolveTypeName(cu, clazz.getExtends().get(0).getName());
+				classesToExtend.put(classCodeModel, getMetaModelClassName(resolvedTypeName));
+			}
+		}
+
 		for (final BodyDeclaration member : classType.getMembers()) {
 			if (member instanceof FieldDeclaration) {
 				final FieldDeclaration field = (FieldDeclaration) member;
@@ -130,22 +229,26 @@ public class ModelFromSourceBuilder {
 			}
 		}
 
-		// for (final BodyDeclaration member : type.getMembers()) {
-		// if (member instanceof TypeDeclaration) {
-		// try {
-		// final TypeDeclaration innerType = (TypeDeclaration) member;
-		// // inner classes need to be static for inheritance to work without defining constructors
-		// final JDefinedClass innerClassModel =
-		// classCodeModel._class(JMod.PUBLIC | JMod.STATIC | JMod.ABSTRACT,
-		// getCorrespondingMetamodelClassName(innerType), ClassType.CLASS);
-		// defineClass(codeModel, innerClassModel, innerType, definedClasses);
-		// } catch (final JClassAlreadyExistsException e) {
-		// throw new RuntimeException(e);
-		// }
-		// }
-		// }
+		for (final BodyDeclaration member : classType.getMembers()) {
+			if (member instanceof TypeDeclaration) {
+				try {
+					final TypeDeclaration innerType = (TypeDeclaration) member;
+					// inner classes need to be static for inheritance to work without defining constructors
+					final JDefinedClass innerClassModel =
+					        classCodeModel._class(JMod.PUBLIC | JMod.STATIC | JMod.ABSTRACT,
+					                getMetaModelClassName(innerType), ClassType.CLASS);
+					// build full class name of inner class, because metamodel needs to import it for base of members
+					final String fullInnerClassName = getFullClassName(innerType);
+					final JClass innerBaseType = codeModel.ref(fullInnerClassName);
+					defineClass(codeModel, innerClassModel, innerBaseType, cu, innerType, definedClasses,
+					        classesToExtend);
+				} catch (final JClassAlreadyExistsException e) {
+					throw new RuntimeException(e);
+				}
+			}
+		}
 
-		definedClasses.put(classType, classCodeModel);
+		definedClasses.put(classCodeModel.fullName(), classCodeModel);
 	}
 
 	/**
@@ -204,9 +307,8 @@ public class ModelFromSourceBuilder {
 		}
 
 		for (final VariableDeclarator variable : field.getVariables()) {
-			final JFieldVar f = classCodeModel.field(JMod.PUBLIC | JMod.STATIC | JMod.VOLATILE, fieldClazz, variable
-			        .getId()
-			        .getName());
+			final JFieldVar f = classCodeModel.field(JMod.PUBLIC | JMod.STATIC | JMod.VOLATILE, fieldClazz,
+			        variable.getId().getName());
 			f.javadoc().add(fieldType.toString());
 		}
 	}
@@ -218,16 +320,27 @@ public class ModelFromSourceBuilder {
 	 * @param classType
 	 * @return
 	 */
-	private JClass findType(final JCodeModel codeModel,
-	        final CompilationUnit cu, final String typeName) {
+	private String resolveTypeName(final CompilationUnit cu, final String typeName) {
 		if (cu.getImports() != null) {
 			for (final ImportDeclaration imp : cu.getImports()) {
 				if (imp.getName().toString().endsWith("." + typeName)) {
-					return codeModel.ref(imp.getName().toString());
+					return imp.getName().toString();
 				}
 			}
 		}
-		return codeModel.ref(typeName);
+		return typeName;
+	}
+
+	/**
+	 * @param codeModel
+	 * @param classCodeModel
+	 * @param cu
+	 * @param classType
+	 * @return
+	 */
+	private JClass findType(final JCodeModel codeModel,
+	        final CompilationUnit cu, final String typeName) {
+		return codeModel.ref(resolveTypeName(cu, typeName));
 	}
 
 	/**

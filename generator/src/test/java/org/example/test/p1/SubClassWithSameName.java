@@ -21,16 +21,12 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package org.example.test;
+package org.example.test.p1;
 
-
-public class ClassWithInnerClasses3 extends ClassWithInnerClasses2 {
-
-	public static class InnerClass3 extends InnerClass2 {
-		private String innerField3;
-		public static class InnerInnerClass3 extends InnerInnerClass2 {
-			private String innerInnerField3;
-		}
-	}
+/**
+ * @author madprogger
+ *
+ */
+public class SubClassWithSameName extends ClassWithSameName {
+	private int field;
 }
-

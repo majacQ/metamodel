@@ -68,6 +68,7 @@ public class ModelFromClassBuilder {
 	public JCodeModel buildCodeModel(final Set<Class<?>> classes) {
 		final Map<Class<?>, JDefinedClass> definedClasses = new HashMap<>();
 		final JCodeModel codeModel = new JCodeModel();
+		// 1. build code model for all classes, excluding "extends"-definitions (they are added in a later step)
 		for (final Class<?> clazz : classes) {
 			try {
 				if (clazz.isMemberClass()) {

@@ -27,8 +27,9 @@ package org.example.test;
 public class ClassWithInnerClasses2 extends ClassWithInnerClasses {
 
 	public static class InnerClass2 extends InnerClass {
+		private String innerField2;
 		public static class InnerInnerClass2 extends InnerInnerClass {
-
+			private String innerInnerField2;
 		}
 	}
 }
