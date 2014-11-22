@@ -14,10 +14,8 @@ One word: testing. There are certain circumstances, where you want to change/rea
 
 Using reflection in productive/non-testing code is not really the way it's meant to be done, although this tooling may also be used for this type of scenario.
 
-No need for meta models!?
-========================
-
-Really? One may think simply writing  
+So do we really need meta models for reflective class field manipulation?
+One may think simply writing  
 
 	object.getClass().getDeclaredField("fieldName").set(object, newValue);
 is all one has to do, with absolutely no need for a meta model.
