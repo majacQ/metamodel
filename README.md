@@ -29,8 +29,8 @@ Well...
 - Code-completion: some typos are (nearly) forever until fixed 
 
 
-Ingredients
-===========
+Content
+=======
 
 - A generator that builds metamodels from java-source-files (using <https://code.google.com/p/javaparser/> for reading source-files and <https://codemodel.java.net/> for writing the metamodels)
 - A maven-build-plugin for seamless integration in, well, maven builds :)
