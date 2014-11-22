@@ -63,6 +63,10 @@ public class ModelFromSourceBuilderTest {
 		classes.add(new File("src/test/java/org/example/test/p2/SubClassWithSameName.java"));
 		classes.add(new File("src/test/java/org/example/test/p2/CrossPackageSubClass.java"));
 
+		classes.add(new File("src/test/java/org/example/test/TestAnnotation.java"));
+		classes.add(new File("src/test/java/org/example/test/TestEnum.java"));
+		classes.add(new File("src/test/java/org/example/test/TestInterface.java"));
+
 		final JCodeModel codeModel = new ModelFromSourceBuilder().buildCodeModel(classes);
 		new ModelWriter().write(codeModel, new File("target/generated-pojo-metamodel"));
 		final JDefinedClass metaClass = codeModel._getClass(POJOTestClass.class.getName() + "_");

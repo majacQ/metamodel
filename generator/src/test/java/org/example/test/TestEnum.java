@@ -47,4 +47,31 @@ public enum TestEnum {
 	public String getValue() {
 		return value;
 	}
+
+	/**
+	 * Enum as inner class.
+	 *
+	 * @author madprogger
+	 */
+	public static enum InnerEnum {
+
+		V1(1),
+		V2(2);
+
+		private final int value;
+
+		/**
+		 * @param value
+		 */
+		private InnerEnum(final int value) {
+			this.value = value;
+		}
+
+		/**
+		 * @return the value
+		 */
+		public int getValue() {
+			return value;
+		}
+	}
 }

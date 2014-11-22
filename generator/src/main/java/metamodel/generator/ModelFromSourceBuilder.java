@@ -183,6 +183,8 @@ public class ModelFromSourceBuilder {
 			result = ((ClassOrInterfaceType) type).getName();
 		} else if (type instanceof ClassOrInterfaceDeclaration) {
 			result = ((ClassOrInterfaceDeclaration) type).getName();
+		} else if (type instanceof EnumDeclaration) {
+			result = ((EnumDeclaration) type).getName();
 		} else {
 			throw new IllegalArgumentException("unknown starting type found while building full type name for " + type);
 		}

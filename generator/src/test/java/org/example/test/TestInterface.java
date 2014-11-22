@@ -30,4 +30,40 @@ package org.example.test;
 public interface TestInterface {
 
 	static final int interfaceConstant = 42;
+
+	/**
+	 * Interface as inner 'class'.
+	 * 
+	 * @author madprogger
+	 */
+	public interface InnerInterface {
+		static final int interfaceConstant = 13;
+
+		/**
+		 * Enum as inner class.
+		 *
+		 * @author madprogger
+		 */
+		public static enum EnumInInnerInterface {
+
+			V1(1.1),
+			PI_SHORT(3.141592654);
+
+			private final double value;
+
+			/**
+			 * @param value
+			 */
+			private EnumInInnerInterface(final double value) {
+				this.value = value;
+			}
+
+			/**
+			 * @return the value
+			 */
+			public double getValue() {
+				return value;
+			}
+		}
+	}
 }
