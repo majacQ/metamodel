@@ -24,7 +24,7 @@
 package org.example.test;
 
 /**
- * @author madprogger
+ * @author Michael Kroll
  *
  */
 public enum TestEnum {
@@ -51,7 +51,7 @@ public enum TestEnum {
 	/**
 	 * Enum as inner class.
 	 *
-	 * @author madprogger
+	 * @author Michael Kroll
 	 */
 	public static enum InnerEnum {
 

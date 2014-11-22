@@ -26,7 +26,7 @@ package org.example.test;
 import java.lang.reflect.Type;
 
 /**
- * @author madprogger
+ * @author Michael Kroll
  *
  */
 public class ClassWithAnonymousInnerClass {

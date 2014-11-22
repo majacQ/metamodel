@@ -30,7 +30,7 @@ import org.junit.Test;
 /**
  * Tests that generation was triggered and produced a valid output.
  *
- * @author madprogger
+ * @author Michael Kroll
  */
 public class TargetTest {
 

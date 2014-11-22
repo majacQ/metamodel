@@ -28,7 +28,7 @@ import java.util.Set;
 
 /**
  *
- * @author madprogger
+ * @author Michael Kroll
  */
 public class POJOTestClass2<T extends List<? extends Set<String>>> {
 

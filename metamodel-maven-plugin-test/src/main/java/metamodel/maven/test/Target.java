@@ -26,7 +26,7 @@ package metamodel.maven.test;
 /**
  * Target-Class for testing metamodel-generation and -access.
  *
- * @author madprogger
+ * @author Michael Kroll
  */
 public class Target {
 

@@ -26,7 +26,7 @@ package metamodel.field;
 /**
  * Base interface for all field-definitions.
  *
- * @author madprogger
+ * @author Michael Kroll
  *
  * @param <BASE> type of class that declares the field
  * @param <ELEM> type of associated value(s)

@@ -27,7 +27,7 @@ package metamodel.field;
  * Interface for simple field-definition. If a field is defined as {@code X field;}, then this kind of field-definition
  * is used.
  *
- * @author madprogger
+ * @author Michael Kroll
  * @param <BASE> type of class that declares the field
  * @param <ELEM> type of associated value
  */

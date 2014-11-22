@@ -29,7 +29,7 @@ import metamodel.field.ArrayField;
  * Implementation for array-field-definition. If a field is defined as {@code X[] field;}, then this kind of
  * field-definition is used.
  *
- * @author madprogger
+ * @author Michael Kroll
  * @param <BASE> type of class that declares the field
  * @param <COL> type of aggregating array, eg. Boolean[][][]
  * @param <ELEM> type of associated values

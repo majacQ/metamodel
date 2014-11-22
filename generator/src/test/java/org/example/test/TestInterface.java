@@ -24,7 +24,7 @@
 package org.example.test;
 
 /**
- * @author madprogger
+ * @author Michael Kroll
  *
  */
 public interface TestInterface {
@@ -34,7 +34,7 @@ public interface TestInterface {
 	/**
 	 * Interface as inner 'class'.
 	 * 
-	 * @author madprogger
+	 * @author Michael Kroll
 	 */
 	public interface InnerInterface {
 		static final int interfaceConstant = 13;
@@ -42,7 +42,7 @@ public interface TestInterface {
 		/**
 		 * Enum as inner class.
 		 *
-		 * @author madprogger
+		 * @author Michael Kroll
 		 */
 		public static enum EnumInInnerInterface {
 

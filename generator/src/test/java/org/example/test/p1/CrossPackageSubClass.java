@@ -26,7 +26,7 @@ package org.example.test.p1;
 import org.example.test.p2.ClassWithSameName;
 
 /**
- * @author madprogger
+ * @author Michael Kroll
  *
  */
 public class CrossPackageSubClass extends ClassWithSameName {

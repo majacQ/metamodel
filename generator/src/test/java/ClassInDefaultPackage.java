@@ -23,7 +23,7 @@
  */
 
 /**
- * @author madprogger
+ * @author Michael Kroll
  *
  */
 public class ClassInDefaultPackage {

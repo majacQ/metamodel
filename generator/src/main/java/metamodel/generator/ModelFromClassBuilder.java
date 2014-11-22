@@ -52,7 +52,7 @@ import com.sun.codemodel.JType;
  * Builds a Metamodel from a set of classes. The metamodel is built into a JCodeModel. With Accessors to their
  * Field-Definitions.
  *
- * @author madprogger
+ * @author Michael Kroll
  * @see ArrayField
  * @see SingularField
  * @see PluralField

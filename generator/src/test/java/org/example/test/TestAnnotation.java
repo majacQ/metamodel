@@ -24,7 +24,7 @@
 package org.example.test;
 
 /**
- * @author madprogger
+ * @author Michael Kroll
  *
  */
 public @interface TestAnnotation {
