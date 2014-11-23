@@ -34,7 +34,7 @@ import metamodel.field.PluralField;
  * @param <COL> type of aggregating class, eg. a List or a Map
  * @param <ELEM> type of associated values
  */
-public class PluralFieldImpl<BASE, COL, ELEM> extends MetaFieldImpl<BASE, ELEM> implements PluralField<BASE, COL, ELEM> {
+public class PluralFieldImpl<BASE, COL, ELEM> extends MetaFieldImpl<BASE, COL> implements PluralField<BASE, COL, ELEM> {
 
 	/**
 	 * Constructor.

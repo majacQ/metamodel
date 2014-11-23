@@ -34,8 +34,7 @@ import metamodel.field.ArrayField;
  * @param <COL> type of aggregating array, eg. Boolean[][][]
  * @param <ELEM> type of associated values
  */
-public class ArrayFieldImpl<BASE, COL, ELEM> extends PluralFieldImpl<BASE, COL, ELEM> implements
-        ArrayField<BASE, COL, ELEM> {
+public class ArrayFieldImpl<BASE, COL, ELEM> extends MetaFieldImpl<BASE, COL> implements ArrayField<BASE, COL, ELEM> {
 
 	/**
 	 * Constructor.

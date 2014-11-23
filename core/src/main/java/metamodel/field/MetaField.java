@@ -29,9 +29,9 @@ package metamodel.field;
  * @author Michael Kroll
  *
  * @param <BASE> type of class that declares the field
- * @param <ELEM> type of associated value(s)
+ * @param <TYPE> type of field
  */
-public interface MetaField<BASE, ELEM> {
+public interface MetaField<BASE, TYPE> {
 	/**
 	 * Get the name of the field.
 	 *

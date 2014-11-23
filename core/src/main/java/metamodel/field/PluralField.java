@@ -30,7 +30,7 @@ package metamodel.field;
  * @author Michael Kroll
  * @param <BASE> type of class that declares the field
  * @param <COL> type of aggregating class, eg. a List or a Map
- * @param <ELEM> type of associated values
+ * @param <ELEM> type of associated values in the collection/array
  */
-public interface PluralField<BASE, COL, ELEM> extends MetaField<BASE, ELEM> {
+public interface PluralField<BASE, COL, ELEM> extends MetaField<BASE, COL> {
 }
