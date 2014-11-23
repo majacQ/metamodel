@@ -31,5 +31,5 @@ package metamodel.field;
  * @param <BASE> type of class that declares the field
  * @param <TYPE> type of associated value
  */
-public interface SingularField<BASE, TYPE> extends MetaField<BASE, TYPE> {
+public interface SingularField<BASE, TYPE> extends AbstractField<BASE, TYPE> {
 }

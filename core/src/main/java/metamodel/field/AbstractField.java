@@ -21,41 +21,31 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package metamodel.field.impl;
-
-import metamodel.field.MetaField;
+package metamodel.field;
 
 /**
- * Base implementation for all field-definitions.
+ * Base interface for all field-definitions.
+ * <p>
+ * By convention, each subclass/interface should have the same type arguments at the same positions: &lt;BASE, TYPE [,
+ * ...]&gt;.
  *
  * @author Michael Kroll
  *
  * @param <BASE> type of class that declares the field
- * @param <ELEM> type of associated value(s)
+ * @param <TYPE> type of field
  */
-public abstract class MetaFieldImpl<BASE, ELEM> implements MetaField<BASE, ELEM> {
-
-	private final String name;
-	private final Class<BASE> declaringClass;
+public interface AbstractField<BASE, TYPE> {
+	/**
+	 * Get the name of the field.
+	 *
+	 * @return the name of the field
+	 */
+	String getName();
 
 	/**
-	 * Constructor.
+	 * Get class that declares the field.
 	 *
-	 * @param name of the field
-	 * @param declaringClass class that declares the field
+	 * @return class that declares the field
 	 */
-	public MetaFieldImpl(final String name, final Class<BASE> declaringClass) {
-		this.name = name;
-		this.declaringClass = declaringClass;
-	}
-
-	@Override
-	public String getName() {
-		return name;
-	}
-
-	@Override
-	public Class<BASE> getDeclaringClass() {
-		return declaringClass;
-	}
+	Class<BASE> getDeclaringClass();
 }

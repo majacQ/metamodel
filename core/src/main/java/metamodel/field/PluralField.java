@@ -31,5 +31,5 @@ package metamodel.field;
  * @param <BASE> type of class that declares the field
  * @param <TYPE> type of aggregating class, eg. a List or a Map
  */
-public interface PluralField<BASE, TYPE> extends MetaField<BASE, TYPE> {
+public interface PluralField<BASE, TYPE> extends AbstractField<BASE, TYPE> {
 }

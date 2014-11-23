@@ -33,7 +33,7 @@ import metamodel.field.PluralField;
  * @param <BASE> type of class that declares the field
  * @param <TYPE> type of aggregating class, eg. a List or a Map
  */
-public abstract class PluralFieldImpl<BASE, TYPE> extends MetaFieldImpl<BASE, TYPE> implements PluralField<BASE, TYPE> {
+public abstract class PluralFieldImpl<BASE, TYPE> extends AbstractFieldImpl<BASE, TYPE> implements PluralField<BASE, TYPE> {
 
 	/**
 	 * Constructor.
