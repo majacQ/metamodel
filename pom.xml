@@ -5,7 +5,7 @@
 
 	<groupId>metamodel</groupId>
 	<artifactId>parent</artifactId>
-	<version>0.1.0-SNAPSHOT</version>
+	<version>1.0.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>metamodel - parent</name>
@@ -144,7 +144,7 @@
 											metamodel-maven-plugin
 										</artifactId>
 										<versionRange>
-											[0.1.0-SNAPSHOT,)
+											[1.0.0-SNAPSHOT,)
 										</versionRange>
 										<goals>
 											<goal>
