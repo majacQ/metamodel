@@ -30,6 +30,7 @@ package metamodel.maven.test;
  */
 public class Target {
 
+	/** a field that stoes an integer primitive. */
 	private int intField;
 
 	/**

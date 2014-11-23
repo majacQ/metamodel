@@ -24,13 +24,12 @@
 package metamodel.field;
 
 /**
- * Interface for 1:n-field-definition. If a field is defined as {@link java.util.Collection} or {@link java.util.Map},
- * then this kind of field-definition is used.
+ * Base interface for all 1:n-field-definition. If a field is defined as array, {@link java.util.Collection} or
+ * {@link java.util.Map}, then this kind of field-definition is used.
  *
  * @author Michael Kroll
  * @param <BASE> type of class that declares the field
- * @param <COL> type of aggregating class, eg. a List or a Map
- * @param <ELEM> type of associated values
+ * @param <TYPE> type of aggregating class, eg. a List or a Map
  */
-public interface PluralField<BASE, COL, ELEM> extends MetaField<BASE, ELEM> {
+public interface PluralField<BASE, TYPE> extends AbstractField<BASE, TYPE> {
 }

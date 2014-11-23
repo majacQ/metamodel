@@ -21,29 +21,36 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package metamodel.field.impl;
+package metamodel.generator.converter;
 
-import metamodel.field.ArrayField;
+import metamodel.field.SingularField;
+import metamodel.field.impl.SingularFieldImpl;
+
+import com.sun.codemodel.JClass;
+import com.sun.codemodel.JCodeModel;
+import com.sun.codemodel.JExpr;
+import com.sun.codemodel.JInvocation;
 
 /**
- * Implementation for array-field-definition. If a field is defined as {@code X[] field;}, then this kind of
- * field-definition is used.
+ * Fallback FieldCoverter, that converts anything to SingularField.
  *
  * @author Michael Kroll
- * @param <BASE> type of class that declares the field
- * @param <ARRTYPE> type of aggregating array, eg. Boolean[][][]
- * @param <ELEM> type of associated values in the array
  */
-public class ArrayFieldImpl<BASE, ARRTYPE, ELEM> extends PluralFieldImpl<BASE, ARRTYPE> implements
-        ArrayField<BASE, ARRTYPE, ELEM> {
+public class ObjectConverter implements FieldCoverter {
 
-	/**
-	 * Constructor.
-	 *
-	 * @param name of the field
-	 * @param declaringClass class that declares the field
-	 */
-	public ArrayFieldImpl(final String name, final Class<BASE> declaringClass) {
-		super(name, declaringClass);
+	@Override
+	public Class<?> getTargetClass() {
+		return Object.class;
+	}
+
+	@Override
+	public FieldDefinition convert(final JCodeModel codeModel, final JClass baseType, final JClass convertedType,
+	        final String fieldName) {
+		final JClass rawLLclazz = codeModel.ref(SingularField.class);
+		final JClass fieldClass = rawLLclazz.narrow(baseType, convertedType);
+		final JInvocation fieldInit = JExpr._new(codeModel.ref(SingularFieldImpl.class).narrow(DIAMOND))
+		        .arg(fieldName).arg(baseType.dotclass());
+
+		return new FieldDefinition(fieldClass, fieldInit);
 	}
 }

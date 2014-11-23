@@ -45,19 +45,25 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import javax.annotation.Generated;
+
 import metamodel.field.ArrayField;
-import metamodel.field.PluralField;
 import metamodel.field.SingularField;
 import metamodel.field.impl.ArrayFieldImpl;
-import metamodel.field.impl.PluralFieldImpl;
 import metamodel.field.impl.SingularFieldImpl;
+import metamodel.generator.converter.CollectionConverter;
+import metamodel.generator.converter.FieldCoverter;
+import metamodel.generator.converter.FieldCoverter.FieldDefinition;
+import metamodel.generator.converter.MapConverter;
+import metamodel.generator.converter.ObjectConverter;
 
 import com.sun.codemodel.ClassType;
 import com.sun.codemodel.JClass;
@@ -77,6 +83,14 @@ import com.sun.codemodel.JType;
  * @author Michael Kroll
  */
 public class ModelFromSourceBuilder {
+
+	/** List of all FieldConverters. Order is important, first converter with matching class wins. */
+	private static final List<FieldCoverter> FIELDCONVERTERS = Arrays.asList(
+	        new CollectionConverter(),
+	        new MapConverter(),
+	        // ObjectConverter has to be last one
+	        new ObjectConverter()
+	        );
 
 	/**
 	 * Build metamodel for classes in source files.
@@ -105,7 +119,11 @@ public class ModelFromSourceBuilder {
 						defineClass(codeModel, classCodeModel, baseType, cu, type, definedClasses, classesToExtend);
 					}
 				}
-			} catch (final IOException | ParseException | JClassAlreadyExistsException e) {
+			} catch (final IOException | ParseException e) {
+				// exception on reader side
+				System.err.println("unable to read source file " + sourceFile + ": " + e.getMessage());
+			} catch (final JClassAlreadyExistsException e) {
+				// exception on writer side
 				throw new RuntimeException(e);
 			}
 		}
@@ -221,6 +239,11 @@ public class ModelFromSourceBuilder {
 			}
 		}
 
+		classCodeModel.javadoc().add("@see " + classType.getName() + "\n");
+		classCodeModel.annotate(Generated.class)
+		        .param("value", this.getClass().getName())
+		        .param("date", new Date().toString());
+
 		for (final BodyDeclaration member : classType.getMembers()) {
 			if (member instanceof FieldDeclaration) {
 				final FieldDeclaration field = (FieldDeclaration) member;
@@ -273,7 +296,7 @@ public class ModelFromSourceBuilder {
 			if (convertedType.isPrimitive()) {
 				final JClass rawLLclazz = codeModel.ref(SingularField.class);
 				fieldClazz = rawLLclazz.narrow(baseType, convertedType);
-				fieldInit = JExpr._new(codeModel.ref(SingularFieldImpl.class).narrow(new JClass[0]))
+				fieldInit = JExpr._new(codeModel.ref(SingularFieldImpl.class).narrow(FieldCoverter.DIAMOND))
 				        .arg(variable.getId().getName()).arg(baseType.dotclass());
 			} else if (convertedType.isArray()) {
 				final JClass rawLLclazz = codeModel.ref(ArrayField.class);
@@ -283,57 +306,68 @@ public class ModelFromSourceBuilder {
 					collectionElementType = collectionElementType.elementType().boxify();
 				}
 				fieldClazz = rawLLclazz.narrow(baseType, convertedType, collectionElementType);
-				fieldInit = JExpr._new(codeModel.ref(ArrayFieldImpl.class).narrow(new JClass[0]))
-				        .arg(variable.getId().getName()).arg(baseType.dotclass());
-			} else if (codeModel.ref(Collection.class).isAssignableFrom(convertedType.erasure())) {
-				final List<JClass> typeParams = convertedType.getTypeParameters();
-				JClass collectionElementType;
-				if (typeParams.size() == 1) {
-					// eg. Collection<String> --> String
-					collectionElementType = typeParams.get(0);
-				} else {
-					// eg. Collection --> Object
-					collectionElementType = codeModel.ref(Object.class);
-				}
-				final JClass rawLLclazz = codeModel.ref(PluralField.class);
-				fieldClazz = rawLLclazz.narrow(baseType, convertedType, collectionElementType);
-				fieldInit = JExpr._new(codeModel.ref(PluralFieldImpl.class).narrow(new JClass[0]))
-				        .arg(variable.getId().getName()).arg(baseType.dotclass());
-			} else if (codeModel.ref(Map.class).isAssignableFrom(convertedType.erasure())) {
-				final List<JClass> typeParams = convertedType.getTypeParameters();
-				JClass collectionElementType;
-				if (typeParams.size() == 2) {
-					// eg. Map<String, Boolean> --> Boolean
-					collectionElementType = typeParams.get(1);
-				} else {
-					// eg. Map --> Object
-					collectionElementType = codeModel.ref(Object.class);
-				}
-				final JClass rawLLclazz = codeModel.ref(PluralField.class);
-				fieldClazz = rawLLclazz.narrow(baseType, convertedType, collectionElementType);
-				fieldInit = JExpr._new(codeModel.ref(PluralFieldImpl.class).narrow(new JClass[0]))
+				fieldInit = JExpr._new(codeModel.ref(ArrayFieldImpl.class).narrow(FieldCoverter.DIAMOND))
 				        .arg(variable.getId().getName()).arg(baseType.dotclass());
 			} else {
-				final JClass rawLLclazz = codeModel.ref(SingularField.class);
-				fieldClazz = rawLLclazz.narrow(baseType, convertedType);
-				fieldInit = JExpr._new(codeModel.ref(SingularFieldImpl.class).narrow(new JClass[0]))
-				        .arg(variable.getId().getName()).arg(baseType.dotclass());
-				;
+				final FieldCoverter fieldConverter = findFieldCoverter(codeModel, convertedType);
+				if (fieldConverter == null) {
+					// should not happen if ObjectConverter is present
+					System.err.println("cannot convert " + baseType.fullName() + "#" + variable.getId().getName()
+					        + " : no converter present for type " + convertedType.fullName());
+					continue;
+				}
+				final FieldDefinition convertedField = fieldConverter.convert(codeModel, baseType, convertedType,
+				        variable.getId().getName());
+				fieldClazz = convertedField.getFieldClass();
+				fieldInit = convertedField.getFieldInit();
 			}
 
 			final JFieldVar f = classCodeModel.field(JMod.PUBLIC | JMod.STATIC | JMod.FINAL, fieldClazz,
 			        variable.getId().getName());
 			f.init(fieldInit);
-			f.javadoc().add(fieldType.toString());
+			if (field.getComment() != null) {
+				f.javadoc().add(extractOriginalJavadoc(field));
+				f.javadoc().add("\n\n");
+			}
+			f.javadoc().add("@see " + classType.getName() + "#" + variable.getId().getName());
 		}
 	}
 
 	/**
-	 * @param codeModel
-	 * @param classCodeModel
-	 * @param cu
-	 * @param classType
-	 * @return
+	 * Finds best-suiting FieldCoverter for given type.
+	 *
+	 * @param codeModel JCodeModel instance
+	 * @param convertedType type to search a FieldConverter for
+	 * @return FieldCoverter
+	 */
+	private FieldCoverter findFieldCoverter(final JCodeModel codeModel, final JClass convertedType) {
+		for (final FieldCoverter fieldConverter : FIELDCONVERTERS) {
+			if (codeModel.ref(fieldConverter.getTargetClass()).isAssignableFrom(convertedType.erasure())) {
+				return fieldConverter;
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Extracts javadoc from a field declaration.
+	 *
+	 * @param field the field
+	 * @return the original javadoc
+	 */
+	private String extractOriginalJavadoc(final FieldDeclaration field) {
+		final String originalContent = field.getComment().getContent();
+		// remove starting '* ' from every line
+		final String processedContent = originalContent.replaceAll("\n[\t ]*\\*", "\n");
+		return processedContent;
+	}
+
+	/**
+	 * Tries to resolve a short type name to the fully qualified name.
+	 *
+	 * @param cu compilation unit that references the type
+	 * @param typeName name of Type (may be shortened form, if import is present)
+	 * @return fully qualified name, if resolving was successful, the short typeName otherwise
 	 */
 	private String resolveTypeName(final CompilationUnit cu, final String typeName) {
 		if (cu.getImports() != null) {
@@ -347,19 +381,19 @@ public class ModelFromSourceBuilder {
 	}
 
 	/**
-	 * @param codeModel
-	 * @param classCodeModel
-	 * @param cu
-	 * @param classType
-	 * @return
+	 * Find a type in the given CodeModel. Tries to resolve type by looking at imports of compilation unit.
+	 *
+	 * @param codeModel instance of JCodeModel
+	 * @param cu CompilationUnit that references the Type
+	 * @param typeName name of Type (may be shortened form, if import is present)
+	 * @return corresponding type in code model
 	 */
-	private JClass findType(final JCodeModel codeModel,
-	        final CompilationUnit cu, final String typeName) {
+	private JClass findType(final JCodeModel codeModel, final CompilationUnit cu, final String typeName) {
 		return codeModel.ref(resolveTypeName(cu, typeName));
 	}
 
 	/**
-	 * Convert a {@link Type} to JClass. This includes generic type information.
+	 * Convert a {@link Type} to {@link JClass}. This includes generic type information.
 	 *
 	 * @param codeModel JCodeModel
 	 * @param possibleGenericType type to convert
@@ -379,7 +413,7 @@ public class ModelFromSourceBuilder {
 				// String[], Boolean[][][], Collection<String>[], ...
 				JClass elementType = convertType(codeModel, cu, type.getType());
 				for (int i = 0; i < type.getArrayCount(); i++) {
-					// add [] as much as needed
+					// add as much [] as needed
 					elementType = elementType.array();
 				}
 				return elementType;
@@ -393,7 +427,6 @@ public class ModelFromSourceBuilder {
 				return upperBound.wildcard();
 			}
 			// List<?>, MyClass<?>, ...
-			// return codeModel.ref(Object.class);
 			return codeModel.wildcard();
 		} else if (possibleGenericType instanceof ClassOrInterfaceType) {
 			final ClassOrInterfaceType type = (ClassOrInterfaceType) possibleGenericType;
@@ -412,7 +445,6 @@ public class ModelFromSourceBuilder {
 			}
 		}
 		// should not get here
-		// return codeModel.ref(possibleGenericType.toString());
 		throw new IllegalArgumentException("cannot convert " + possibleGenericType.toString());
 	}
 }

@@ -23,7 +23,7 @@
  */
 package metamodel.field.impl;
 
-import metamodel.field.MetaField;
+import metamodel.field.AbstractField;
 
 /**
  * Base implementation for all field-definitions.
@@ -33,7 +33,7 @@ import metamodel.field.MetaField;
  * @param <BASE> type of class that declares the field
  * @param <ELEM> type of associated value(s)
  */
-public abstract class MetaFieldImpl<BASE, ELEM> implements MetaField<BASE, ELEM> {
+public abstract class AbstractFieldImpl<BASE, ELEM> implements AbstractField<BASE, ELEM> {
 
 	private final String name;
 	private final Class<BASE> declaringClass;
@@ -44,7 +44,7 @@ public abstract class MetaFieldImpl<BASE, ELEM> implements MetaField<BASE, ELEM>
 	 * @param name of the field
 	 * @param declaringClass class that declares the field
 	 */
-	public MetaFieldImpl(final String name, final Class<BASE> declaringClass) {
+	public AbstractFieldImpl(final String name, final Class<BASE> declaringClass) {
 		this.name = name;
 		this.declaringClass = declaringClass;
 	}

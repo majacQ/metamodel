@@ -25,10 +25,7 @@ package metamodel.access;
 
 import java.lang.reflect.Field;
 
-import metamodel.field.ArrayField;
-import metamodel.field.MetaField;
-import metamodel.field.PluralField;
-import metamodel.field.SingularField;
+import metamodel.field.AbstractField;
 
 /**
  * Provides access to fields-values of objects using reflection and metamodel-description of the class.
@@ -37,49 +34,19 @@ import metamodel.field.SingularField;
  */
 public class AccessorUtil {
 
-	public static <BASE, ELEM> void set(final BASE object,
-	        final SingularField<BASE, ELEM> fieldDefinition,
-	        final ELEM value) throws NoSuchFieldException, SecurityException, IllegalArgumentException,
-	        IllegalAccessException {
-		final Field field = getAccessibleField(fieldDefinition);
-		field.set(object, value);
-	}
-
-	public static <BASE, COLL, ELEM> void set(final BASE object,
-	        final ArrayField<BASE, COLL, ELEM> fieldDefinition,
-	        final COLL value) throws NoSuchFieldException, SecurityException, IllegalArgumentException,
-	        IllegalAccessException {
-		final Field field = getAccessibleField(fieldDefinition);
-		field.set(object, value);
-	}
-
-	public static <BASE, COLL, ELEM> void set(final BASE object,
-	        final PluralField<BASE, COLL, ELEM> fieldDefinition,
-	        final COLL value) throws NoSuchFieldException, SecurityException, IllegalArgumentException,
+	public static <BASE, TYPE> void set(final BASE object,
+	        final AbstractField<BASE, TYPE> fieldDefinition,
+	        final TYPE value) throws NoSuchFieldException, SecurityException, IllegalArgumentException,
 	        IllegalAccessException {
 		final Field field = getAccessibleField(fieldDefinition);
 		field.set(object, value);
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <BASE, ELEM> ELEM get(final BASE object, final SingularField<BASE, ELEM> fieldDefinition)
+	public static <BASE, TYPE> TYPE get(final BASE object, final AbstractField<BASE, TYPE> fieldDefinition)
 	        throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
 		final Field field = getAccessibleField(fieldDefinition);
-		return (ELEM) field.get(object);
-	}
-
-	@SuppressWarnings("unchecked")
-	public static <BASE, COLL, ELEM> COLL get(final BASE object, final ArrayField<BASE, COLL, ELEM> fieldDefinition)
-	        throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
-		final Field field = getAccessibleField(fieldDefinition);
-		return (COLL) field.get(object);
-	}
-
-	@SuppressWarnings("unchecked")
-	public static <BASE, COLL, ELEM> COLL get(final BASE object, final PluralField<BASE, COLL, ELEM> fieldDefinition)
-	        throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
-		final Field field = getAccessibleField(fieldDefinition);
-		return (COLL) field.get(object);
+		return (TYPE) field.get(object);
 	}
 
 	/**
@@ -90,7 +57,7 @@ public class AccessorUtil {
 	 * @throws NoSuchFieldException
 	 * @throws SecurityException
 	 */
-	private static Field getAccessibleField(final MetaField<?, ?> fieldDefinition)
+	private static Field getAccessibleField(final AbstractField<?, ?> fieldDefinition)
 	        throws NoSuchFieldException, SecurityException {
 		final String fieldName = fieldDefinition.getName();
 		final Field field = fieldDefinition.getDeclaringClass().getDeclaredField(fieldName);

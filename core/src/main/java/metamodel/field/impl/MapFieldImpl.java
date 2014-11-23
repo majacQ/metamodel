@@ -23,19 +23,22 @@
  */
 package metamodel.field.impl;
 
-import metamodel.field.ArrayField;
+import java.util.Map;
+
+import metamodel.field.MapField;
 
 /**
- * Implementation for array-field-definition. If a field is defined as {@code X[] field;}, then this kind of
- * field-definition is used.
+ * Implementation for {@link Map}-definition. If a field is defined as {@code Map field;} or any subclass of Map, then
+ * this kind of field-definition is used.
  *
  * @author Michael Kroll
  * @param <BASE> type of class that declares the field
- * @param <ARRTYPE> type of aggregating array, eg. Boolean[][][]
- * @param <ELEM> type of associated values in the array
+ * @param <COL> type of aggregating class, eg. a List or a Map
+ * @param <KEYTYPE> type of keys in map
+ * @param <VALUETYPE> type of values in map
  */
-public class ArrayFieldImpl<BASE, ARRTYPE, ELEM> extends PluralFieldImpl<BASE, ARRTYPE> implements
-        ArrayField<BASE, ARRTYPE, ELEM> {
+public class MapFieldImpl<BASE, COL, KEYTYPE, VALUETYPE> extends PluralFieldImpl<BASE, COL> implements
+        MapField<BASE, COL, KEYTYPE, VALUETYPE> {
 
 	/**
 	 * Constructor.
@@ -43,7 +46,7 @@ public class ArrayFieldImpl<BASE, ARRTYPE, ELEM> extends PluralFieldImpl<BASE, A
 	 * @param name of the field
 	 * @param declaringClass class that declares the field
 	 */
-	public ArrayFieldImpl(final String name, final Class<BASE> declaringClass) {
+	public MapFieldImpl(final String name, final Class<BASE> declaringClass) {
 		super(name, declaringClass);
 	}
 }

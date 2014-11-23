@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>metamodel</groupId>
 		<artifactId>parent</artifactId>
-		<version>0.1.0-SNAPSHOT</version>
+		<version>1.0.0-SNAPSHOT</version>
 	</parent>
 	<artifactId>metamodel-maven-plugin-test</artifactId>
 	<packaging>jar</packaging>
@@ -27,7 +27,7 @@
 			<plugin>
 				<groupId>metamodel</groupId>
 				<artifactId>metamodel-maven-plugin</artifactId>
-				<version>0.1.0-SNAPSHOT</version>
+				<version>${project.version}</version>
 				<executions>
 					<execution>
 						<id>metamodel generation</id>

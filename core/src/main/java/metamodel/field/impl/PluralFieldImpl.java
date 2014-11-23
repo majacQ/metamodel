@@ -26,15 +26,14 @@ package metamodel.field.impl;
 import metamodel.field.PluralField;
 
 /**
- * Implementation for 1:n-field-definition. If a field is defined as {@link java.util.Collection} or
- * {@link java.util.Map}, then this kind of field-definition is used.
+ * Implementation for 1:n-field-definition. If a field is defined as array, {@link java.util.Collection} or
+ * {@link java.util.Map}, then a subclass of this class is used.
  *
  * @author Michael Kroll
  * @param <BASE> type of class that declares the field
- * @param <COL> type of aggregating class, eg. a List or a Map
- * @param <ELEM> type of associated values
+ * @param <TYPE> type of aggregating class, eg. a List or a Map
  */
-public class PluralFieldImpl<BASE, COL, ELEM> extends MetaFieldImpl<BASE, ELEM> implements PluralField<BASE, COL, ELEM> {
+public abstract class PluralFieldImpl<BASE, TYPE> extends AbstractFieldImpl<BASE, TYPE> implements PluralField<BASE, TYPE> {
 
 	/**
 	 * Constructor.

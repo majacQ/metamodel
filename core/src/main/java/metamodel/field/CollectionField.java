@@ -23,26 +23,16 @@
  */
 package metamodel.field;
 
+import java.util.Collection;
+
 /**
- * Base interface for all field-definitions.
+ * Interface for {@link Collection}-definition. If a field is defined as {@code Collection field;} or any subclass of
+ * Collection, then this kind of field-definition is used.
  *
  * @author Michael Kroll
- *
  * @param <BASE> type of class that declares the field
- * @param <ELEM> type of associated value(s)
+ * @param <COL> type of aggregating class, eg. a List or a Set
+ * @param <ELEM> type of associated values in the collection/array
  */
-public interface MetaField<BASE, ELEM> {
-	/**
-	 * Get the name of the field.
-	 *
-	 * @return the name of the field
-	 */
-	String getName();
-
-	/**
-	 * Get class that declares the field.
-	 *
-	 * @return class that declares the field
-	 */
-	Class<BASE> getDeclaringClass();
+public interface CollectionField<BASE, COL, ELEM> extends PluralField<BASE, COL> {
 }

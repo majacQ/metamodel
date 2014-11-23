@@ -21,29 +21,33 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package metamodel.field.impl;
+package metamodel.maven.test;
 
-import metamodel.field.ArrayField;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
- * Implementation for array-field-definition. If a field is defined as {@code X[] field;}, then this kind of
- * field-definition is used.
+ * Target-class with java 7 compliant code.
  *
  * @author Michael Kroll
- * @param <BASE> type of class that declares the field
- * @param <ARRTYPE> type of aggregating array, eg. Boolean[][][]
- * @param <ELEM> type of associated values in the array
  */
-public class ArrayFieldImpl<BASE, ARRTYPE, ELEM> extends PluralFieldImpl<BASE, ARRTYPE> implements
-        ArrayField<BASE, ARRTYPE, ELEM> {
+public class Java7Target {
+	@SuppressWarnings("unused")
+	private final List<String> diamondList = new ArrayList<>();
+	@SuppressWarnings("unused")
+	private final Map<String, Boolean> diamondMap = new HashMap<>();
 
 	/**
-	 * Constructor.
-	 *
-	 * @param name of the field
-	 * @param declaringClass class that declares the field
-	 */
-	public ArrayFieldImpl(final String name, final Class<BASE> declaringClass) {
-		super(name, declaringClass);
-	}
+     *
+     */
+	public Java7Target() {
+	    try(final InputStream in = getClass().getResourceAsStream("blubb")) {
+	    } catch (IOException | RuntimeException e) {
+	        e.printStackTrace();
+        }
+    }
 }
