@@ -23,19 +23,21 @@
  */
 package metamodel.field.impl;
 
-import metamodel.field.ArrayField;
+import java.util.Collection;
+
+import metamodel.field.CollectionField;
 
 /**
- * Implementation for array-field-definition. If a field is defined as {@code X[] field;}, then this kind of
- * field-definition is used.
+ * Implmentation for {@link Collection}-definition. If a field is defined as {@code Collection field;} or any subclass
+ * of Collection, then this kind of field-definition is used.
  *
  * @author Michael Kroll
  * @param <BASE> type of class that declares the field
- * @param <ARRTYPE> type of aggregating array, eg. Boolean[][][]
- * @param <ELEM> type of associated values in the array
+ * @param <COL> type of aggregating class, eg. a List or a Set
+ * @param <ELEM> type of associated values in the collection/array
  */
-public class ArrayFieldImpl<BASE, ARRTYPE, ELEM> extends PluralFieldImpl<BASE, ARRTYPE> implements
-        ArrayField<BASE, ARRTYPE, ELEM> {
+public class CollectionFieldImpl<BASE, COL, ELEM> extends PluralFieldImpl<BASE, COL> implements
+        CollectionField<BASE, COL, ELEM> {
 
 	/**
 	 * Constructor.
@@ -43,7 +45,7 @@ public class ArrayFieldImpl<BASE, ARRTYPE, ELEM> extends PluralFieldImpl<BASE, A
 	 * @param name of the field
 	 * @param declaringClass class that declares the field
 	 */
-	public ArrayFieldImpl(final String name, final Class<BASE> declaringClass) {
+	public CollectionFieldImpl(final String name, final Class<BASE> declaringClass) {
 		super(name, declaringClass);
 	}
 }

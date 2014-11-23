@@ -29,7 +29,8 @@ import static org.junit.Assert.assertTrue;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 
-import metamodel.field.PluralField;
+import metamodel.field.CollectionField;
+import metamodel.field.MapField;
 
 import org.junit.Test;
 
@@ -55,14 +56,14 @@ public class Java7TargetTest {
 	@Test
 	public void testMembersHaveCorrectTypes() throws Exception {
 		final Class<?> clazz = Class.forName("metamodel.maven.test.Java7Target_");
-		assertEquals(PluralField.class, clazz.getDeclaredField("diamondList").getType());
-		assertEquals(PluralField.class, clazz.getDeclaredField("diamondMap").getType());
+		assertEquals(CollectionField.class, clazz.getDeclaredField("diamondList").getType());
+		assertEquals(MapField.class, clazz.getDeclaredField("diamondMap").getType());
 
 		for (final Field sourceField : Java7Target.class.getDeclaredFields()) {
 			final Field targetField = clazz.getDeclaredField(sourceField.getName());
 			assertTrue(targetField.getGenericType() instanceof ParameterizedType);
 			final ParameterizedType paramType = (ParameterizedType) targetField.getGenericType();
-			assertEquals(3, paramType.getActualTypeArguments().length);
+			assertTrue(paramType.getActualTypeArguments().length >= 2);
 			assertEquals(Java7Target.class, paramType.getActualTypeArguments()[0]);
 			assertTrue(paramType.getActualTypeArguments()[1] instanceof ParameterizedType);
 			final ParameterizedType arg1 = (ParameterizedType) paramType.getActualTypeArguments()[1];

@@ -56,10 +56,12 @@ import java.util.Set;
 import javax.annotation.Generated;
 
 import metamodel.field.ArrayField;
-import metamodel.field.PluralField;
+import metamodel.field.CollectionField;
+import metamodel.field.MapField;
 import metamodel.field.SingularField;
 import metamodel.field.impl.ArrayFieldImpl;
-import metamodel.field.impl.PluralFieldImpl;
+import metamodel.field.impl.CollectionFieldImpl;
+import metamodel.field.impl.MapFieldImpl;
 import metamodel.field.impl.SingularFieldImpl;
 
 import com.sun.codemodel.ClassType;
@@ -310,23 +312,26 @@ public class ModelFromSourceBuilder {
 					// eg. Collection --> Object
 					collectionElementType = codeModel.ref(Object.class);
 				}
-				final JClass rawLLclazz = codeModel.ref(PluralField.class);
+				final JClass rawLLclazz = codeModel.ref(CollectionField.class);
 				fieldClazz = rawLLclazz.narrow(baseType, convertedType, collectionElementType);
-				fieldInit = JExpr._new(codeModel.ref(PluralFieldImpl.class).narrow(DIAMOND))
+				fieldInit = JExpr._new(codeModel.ref(CollectionFieldImpl.class).narrow(DIAMOND))
 				        .arg(variable.getId().getName()).arg(baseType.dotclass());
 			} else if (codeModel.ref(Map.class).isAssignableFrom(convertedType.erasure())) {
 				final List<JClass> typeParams = convertedType.getTypeParameters();
-				JClass collectionElementType;
+				JClass mapKeyType;
+				JClass mapValueType;
 				if (typeParams.size() == 2) {
-					// eg. Map<String, Boolean> --> Boolean
-					collectionElementType = typeParams.get(1);
+					// eg. Map<String, Boolean> --> String, Boolean
+					mapKeyType = typeParams.get(0);
+					mapValueType = typeParams.get(1);
 				} else {
-					// eg. Map --> Object
-					collectionElementType = codeModel.ref(Object.class);
+					// eg. Map --> Object, Object
+					mapKeyType = codeModel.ref(Object.class);
+					mapValueType = codeModel.ref(Object.class);
 				}
-				final JClass rawLLclazz = codeModel.ref(PluralField.class);
-				fieldClazz = rawLLclazz.narrow(baseType, convertedType, collectionElementType);
-				fieldInit = JExpr._new(codeModel.ref(PluralFieldImpl.class).narrow(DIAMOND))
+				final JClass rawLLclazz = codeModel.ref(MapField.class);
+				fieldClazz = rawLLclazz.narrow(baseType, convertedType, mapKeyType, mapValueType);
+				fieldInit = JExpr._new(codeModel.ref(MapFieldImpl.class).narrow(DIAMOND))
 				        .arg(variable.getId().getName()).arg(baseType.dotclass());
 			} else {
 				final JClass rawLLclazz = codeModel.ref(SingularField.class);

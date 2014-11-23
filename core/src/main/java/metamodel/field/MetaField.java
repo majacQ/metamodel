@@ -25,6 +25,9 @@ package metamodel.field;
 
 /**
  * Base interface for all field-definitions.
+ * <p>
+ * By convention, each subclass/interface should have the same type arguments at the same positions: &lt;BASE, TYPE [,
+ * ...]&gt;.
  *
  * @author Michael Kroll
  *

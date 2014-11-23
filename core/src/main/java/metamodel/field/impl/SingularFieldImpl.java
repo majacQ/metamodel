@@ -31,9 +31,9 @@ import metamodel.field.SingularField;
  *
  * @author Michael Kroll
  * @param <BASE> type of class that declares the field
- * @param <ELEM> type of associated value
+ * @param <TYPE> type of associated value
  */
-public class SingularFieldImpl<BASE, ELEM> extends MetaFieldImpl<BASE, ELEM> implements SingularField<BASE, ELEM> {
+public class SingularFieldImpl<BASE, TYPE> extends MetaFieldImpl<BASE, TYPE> implements SingularField<BASE, TYPE> {
 
 	/**
 	 * Constructor.

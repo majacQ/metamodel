@@ -29,7 +29,7 @@ package metamodel.field;
  *
  * @author Michael Kroll
  * @param <BASE> type of class that declares the field
- * @param <ELEM> type of associated value
+ * @param <TYPE> type of associated value
  */
-public interface SingularField<BASE, ELEM> extends MetaField<BASE, ELEM> {
+public interface SingularField<BASE, TYPE> extends MetaField<BASE, TYPE> {
 }
