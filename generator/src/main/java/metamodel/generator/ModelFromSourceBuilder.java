@@ -45,7 +45,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -56,13 +56,14 @@ import java.util.Set;
 import javax.annotation.Generated;
 
 import metamodel.field.ArrayField;
-import metamodel.field.CollectionField;
-import metamodel.field.MapField;
 import metamodel.field.SingularField;
 import metamodel.field.impl.ArrayFieldImpl;
-import metamodel.field.impl.CollectionFieldImpl;
-import metamodel.field.impl.MapFieldImpl;
 import metamodel.field.impl.SingularFieldImpl;
+import metamodel.generator.converter.CollectionConverter;
+import metamodel.generator.converter.FieldCoverter;
+import metamodel.generator.converter.FieldCoverter.FieldDefinition;
+import metamodel.generator.converter.MapConverter;
+import metamodel.generator.converter.ObjectConverter;
 
 import com.sun.codemodel.ClassType;
 import com.sun.codemodel.JClass;
@@ -83,8 +84,13 @@ import com.sun.codemodel.JType;
  */
 public class ModelFromSourceBuilder {
 
-	/** helper for narrowing generics using diamond-operator &lt;&gt;. */
-    private static final JClass[] DIAMOND = new JClass[0];
+	/** List of all FieldConverters. Order is important, first converter with matching class wins. */
+	private static final List<FieldCoverter> FIELDCONVERTERS = Arrays.asList(
+	        new CollectionConverter(),
+	        new MapConverter(),
+	        // ObjectConverter has to be last one
+	        new ObjectConverter()
+	        );
 
 	/**
 	 * Build metamodel for classes in source files.
@@ -290,7 +296,7 @@ public class ModelFromSourceBuilder {
 			if (convertedType.isPrimitive()) {
 				final JClass rawLLclazz = codeModel.ref(SingularField.class);
 				fieldClazz = rawLLclazz.narrow(baseType, convertedType);
-				fieldInit = JExpr._new(codeModel.ref(SingularFieldImpl.class).narrow(DIAMOND))
+				fieldInit = JExpr._new(codeModel.ref(SingularFieldImpl.class).narrow(FieldCoverter.DIAMOND))
 				        .arg(variable.getId().getName()).arg(baseType.dotclass());
 			} else if (convertedType.isArray()) {
 				final JClass rawLLclazz = codeModel.ref(ArrayField.class);
@@ -300,45 +306,20 @@ public class ModelFromSourceBuilder {
 					collectionElementType = collectionElementType.elementType().boxify();
 				}
 				fieldClazz = rawLLclazz.narrow(baseType, convertedType, collectionElementType);
-				fieldInit = JExpr._new(codeModel.ref(ArrayFieldImpl.class).narrow(DIAMOND))
-				        .arg(variable.getId().getName()).arg(baseType.dotclass());
-			} else if (codeModel.ref(Collection.class).isAssignableFrom(convertedType.erasure())) {
-				final List<JClass> typeParams = convertedType.getTypeParameters();
-				JClass collectionElementType;
-				if (typeParams.size() == 1) {
-					// eg. Collection<String> --> String
-					collectionElementType = typeParams.get(0);
-				} else {
-					// eg. Collection --> Object
-					collectionElementType = codeModel.ref(Object.class);
-				}
-				final JClass rawLLclazz = codeModel.ref(CollectionField.class);
-				fieldClazz = rawLLclazz.narrow(baseType, convertedType, collectionElementType);
-				fieldInit = JExpr._new(codeModel.ref(CollectionFieldImpl.class).narrow(DIAMOND))
-				        .arg(variable.getId().getName()).arg(baseType.dotclass());
-			} else if (codeModel.ref(Map.class).isAssignableFrom(convertedType.erasure())) {
-				final List<JClass> typeParams = convertedType.getTypeParameters();
-				JClass mapKeyType;
-				JClass mapValueType;
-				if (typeParams.size() == 2) {
-					// eg. Map<String, Boolean> --> String, Boolean
-					mapKeyType = typeParams.get(0);
-					mapValueType = typeParams.get(1);
-				} else {
-					// eg. Map --> Object, Object
-					mapKeyType = codeModel.ref(Object.class);
-					mapValueType = codeModel.ref(Object.class);
-				}
-				final JClass rawLLclazz = codeModel.ref(MapField.class);
-				fieldClazz = rawLLclazz.narrow(baseType, convertedType, mapKeyType, mapValueType);
-				fieldInit = JExpr._new(codeModel.ref(MapFieldImpl.class).narrow(DIAMOND))
+				fieldInit = JExpr._new(codeModel.ref(ArrayFieldImpl.class).narrow(FieldCoverter.DIAMOND))
 				        .arg(variable.getId().getName()).arg(baseType.dotclass());
 			} else {
-				final JClass rawLLclazz = codeModel.ref(SingularField.class);
-				fieldClazz = rawLLclazz.narrow(baseType, convertedType);
-				fieldInit = JExpr._new(codeModel.ref(SingularFieldImpl.class).narrow(DIAMOND))
-				        .arg(variable.getId().getName()).arg(baseType.dotclass());
-				;
+				final FieldCoverter fieldConverter = findFieldCoverter(codeModel, convertedType);
+				if (fieldConverter == null) {
+					// should not happen if ObjectConverter is present
+					System.err.println("cannot convert " + baseType.fullName() + "#" + variable.getId().getName()
+					        + " : no converter present for type " + convertedType.fullName());
+					continue;
+				}
+				final FieldDefinition convertedField = fieldConverter.convert(codeModel, baseType, convertedType,
+				        variable.getId().getName());
+				fieldClazz = convertedField.getFieldClass();
+				fieldInit = convertedField.getFieldInit();
 			}
 
 			final JFieldVar f = classCodeModel.field(JMod.PUBLIC | JMod.STATIC | JMod.FINAL, fieldClazz,
@@ -350,6 +331,22 @@ public class ModelFromSourceBuilder {
 			}
 			f.javadoc().add("@see " + classType.getName() + "#" + variable.getId().getName());
 		}
+	}
+
+	/**
+	 * Finds best-suiting FieldCoverter for given type.
+	 *
+	 * @param codeModel JCodeModel instance
+	 * @param convertedType type to search a FieldConverter for
+	 * @return FieldCoverter
+	 */
+	private FieldCoverter findFieldCoverter(final JCodeModel codeModel, final JClass convertedType) {
+		for (final FieldCoverter fieldConverter : FIELDCONVERTERS) {
+			if (codeModel.ref(fieldConverter.getTargetClass()).isAssignableFrom(convertedType.erasure())) {
+				return fieldConverter;
+			}
+		}
+		return null;
 	}
 
 	/**
