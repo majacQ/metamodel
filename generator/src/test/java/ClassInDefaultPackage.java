@@ -28,5 +28,11 @@
  */
 public class ClassInDefaultPackage {
 
+	/**
+	 * primitive int field.
+	 * <p>
+	 * some illegal characters to test stability: §$%&>>>>><<< &blaa;
+	 *
+	 */
 	private int intField;
 }

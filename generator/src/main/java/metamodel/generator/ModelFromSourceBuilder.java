@@ -46,11 +46,14 @@ import java.io.IOException;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+
+import javax.annotation.Generated;
 
 import metamodel.field.ArrayField;
 import metamodel.field.PluralField;
@@ -77,6 +80,9 @@ import com.sun.codemodel.JType;
  * @author Michael Kroll
  */
 public class ModelFromSourceBuilder {
+
+	/** helper for narrowing generics using diamond-operator &lt;&gt;. */
+    private static final JClass[] DIAMOND = new JClass[0];
 
 	/**
 	 * Build metamodel for classes in source files.
@@ -105,7 +111,11 @@ public class ModelFromSourceBuilder {
 						defineClass(codeModel, classCodeModel, baseType, cu, type, definedClasses, classesToExtend);
 					}
 				}
-			} catch (final IOException | ParseException | JClassAlreadyExistsException e) {
+			} catch (final IOException | ParseException e) {
+				// exception on reader side
+				System.err.println("unable to read source file " + sourceFile + ": " + e.getMessage());
+			} catch (final JClassAlreadyExistsException e) {
+				// exception on writer side
 				throw new RuntimeException(e);
 			}
 		}
@@ -221,6 +231,11 @@ public class ModelFromSourceBuilder {
 			}
 		}
 
+		classCodeModel.javadoc().add("@see " + classType.getName() + "\n");
+		classCodeModel.annotate(Generated.class)
+		        .param("value", this.getClass().getName())
+		        .param("date", new Date().toString());
+
 		for (final BodyDeclaration member : classType.getMembers()) {
 			if (member instanceof FieldDeclaration) {
 				final FieldDeclaration field = (FieldDeclaration) member;
@@ -273,7 +288,7 @@ public class ModelFromSourceBuilder {
 			if (convertedType.isPrimitive()) {
 				final JClass rawLLclazz = codeModel.ref(SingularField.class);
 				fieldClazz = rawLLclazz.narrow(baseType, convertedType);
-				fieldInit = JExpr._new(codeModel.ref(SingularFieldImpl.class).narrow(new JClass[0]))
+				fieldInit = JExpr._new(codeModel.ref(SingularFieldImpl.class).narrow(DIAMOND))
 				        .arg(variable.getId().getName()).arg(baseType.dotclass());
 			} else if (convertedType.isArray()) {
 				final JClass rawLLclazz = codeModel.ref(ArrayField.class);
@@ -283,7 +298,7 @@ public class ModelFromSourceBuilder {
 					collectionElementType = collectionElementType.elementType().boxify();
 				}
 				fieldClazz = rawLLclazz.narrow(baseType, convertedType, collectionElementType);
-				fieldInit = JExpr._new(codeModel.ref(ArrayFieldImpl.class).narrow(new JClass[0]))
+				fieldInit = JExpr._new(codeModel.ref(ArrayFieldImpl.class).narrow(DIAMOND))
 				        .arg(variable.getId().getName()).arg(baseType.dotclass());
 			} else if (codeModel.ref(Collection.class).isAssignableFrom(convertedType.erasure())) {
 				final List<JClass> typeParams = convertedType.getTypeParameters();
@@ -297,7 +312,7 @@ public class ModelFromSourceBuilder {
 				}
 				final JClass rawLLclazz = codeModel.ref(PluralField.class);
 				fieldClazz = rawLLclazz.narrow(baseType, convertedType, collectionElementType);
-				fieldInit = JExpr._new(codeModel.ref(PluralFieldImpl.class).narrow(new JClass[0]))
+				fieldInit = JExpr._new(codeModel.ref(PluralFieldImpl.class).narrow(DIAMOND))
 				        .arg(variable.getId().getName()).arg(baseType.dotclass());
 			} else if (codeModel.ref(Map.class).isAssignableFrom(convertedType.erasure())) {
 				final List<JClass> typeParams = convertedType.getTypeParameters();
@@ -311,12 +326,12 @@ public class ModelFromSourceBuilder {
 				}
 				final JClass rawLLclazz = codeModel.ref(PluralField.class);
 				fieldClazz = rawLLclazz.narrow(baseType, convertedType, collectionElementType);
-				fieldInit = JExpr._new(codeModel.ref(PluralFieldImpl.class).narrow(new JClass[0]))
+				fieldInit = JExpr._new(codeModel.ref(PluralFieldImpl.class).narrow(DIAMOND))
 				        .arg(variable.getId().getName()).arg(baseType.dotclass());
 			} else {
 				final JClass rawLLclazz = codeModel.ref(SingularField.class);
 				fieldClazz = rawLLclazz.narrow(baseType, convertedType);
-				fieldInit = JExpr._new(codeModel.ref(SingularFieldImpl.class).narrow(new JClass[0]))
+				fieldInit = JExpr._new(codeModel.ref(SingularFieldImpl.class).narrow(DIAMOND))
 				        .arg(variable.getId().getName()).arg(baseType.dotclass());
 				;
 			}
@@ -324,8 +339,25 @@ public class ModelFromSourceBuilder {
 			final JFieldVar f = classCodeModel.field(JMod.PUBLIC | JMod.STATIC | JMod.FINAL, fieldClazz,
 			        variable.getId().getName());
 			f.init(fieldInit);
-			f.javadoc().add(fieldType.toString());
+			if (field.getComment() != null) {
+				f.javadoc().add(extractOriginalJavadoc(field));
+				f.javadoc().add("\n\n");
+			}
+			f.javadoc().add("@see " + classType.getName() + "#" + variable.getId().getName());
 		}
+	}
+
+	/**
+	 * Extracts javadoc from a field declaration.
+	 *
+	 * @param field the field
+	 * @return the original javadoc
+	 */
+	private String extractOriginalJavadoc(final FieldDeclaration field) {
+		final String originalContent = field.getComment().getContent();
+		// remove starting '* ' from every line
+		final String processedContent = originalContent.replaceAll("\n[\t ]*\\*", "\n");
+		return processedContent;
 	}
 
 	/**

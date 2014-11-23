@@ -27,7 +27,7 @@
 			<plugin>
 				<groupId>metamodel</groupId>
 				<artifactId>metamodel-maven-plugin</artifactId>
-				<version>0.1.0-SNAPSHOT</version>
+				<version>${project.version}</version>
 				<executions>
 					<execution>
 						<id>metamodel generation</id>
