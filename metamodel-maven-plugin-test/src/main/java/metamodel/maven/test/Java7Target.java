@@ -33,7 +33,7 @@ import java.util.Map;
 /**
  * Target-class with java 7 compliant code.
  *
- * @author madprogger
+ * @author Michael Kroll
  */
 public class Java7Target {
 	@SuppressWarnings("unused")

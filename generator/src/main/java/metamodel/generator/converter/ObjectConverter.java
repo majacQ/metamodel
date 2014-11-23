@@ -34,7 +34,7 @@ import com.sun.codemodel.JInvocation;
 /**
  * Fallback FieldCoverter, that converts anything to SingularField.
  *
- * @author madprogger
+ * @author Michael Kroll
  */
 public class ObjectConverter implements FieldCoverter {
 

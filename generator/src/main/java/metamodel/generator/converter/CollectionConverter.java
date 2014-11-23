@@ -37,7 +37,7 @@ import com.sun.codemodel.JInvocation;
 /**
  * FieldCoverter for Collections.
  *
- * @author madprogger
+ * @author Michael Kroll
  */
 public class CollectionConverter implements FieldCoverter {
 

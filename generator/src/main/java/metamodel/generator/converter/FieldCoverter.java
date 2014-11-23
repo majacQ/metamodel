@@ -28,7 +28,12 @@ import com.sun.codemodel.JCodeModel;
 import com.sun.codemodel.JInvocation;
 
 /**
- * @author madprogger
+ * Interface for all field converters. Implementations have to be 'registered' in ModelBuilder.
+ * <p>
+ * Provides a conversion function for a specific type class like Collection or Map. As a rule of thumb a subtype of
+ * PluralField should come with its own FieldConverter.
+ *
+ * @author Michael Kroll
  */
 public interface FieldCoverter {
 
@@ -61,7 +66,7 @@ public interface FieldCoverter {
 	 * <p>
 	 * Holds the type and the initialization for a field variable.
 	 *
-	 * @author madprogger
+	 * @author Michael Kroll
 	 *
 	 */
 	public static class FieldDefinition {

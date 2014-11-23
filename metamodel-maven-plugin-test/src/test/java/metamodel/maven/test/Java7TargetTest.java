@@ -37,7 +37,7 @@ import org.junit.Test;
 /**
  * Ensures that Java7Target_ was created
  *
- * @author madprogger
+ * @author Michael Kroll
  */
 public class Java7TargetTest {
 

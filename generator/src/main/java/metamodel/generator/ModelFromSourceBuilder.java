@@ -363,11 +363,11 @@ public class ModelFromSourceBuilder {
 	}
 
 	/**
-	 * @param codeModel
-	 * @param classCodeModel
-	 * @param cu
-	 * @param classType
-	 * @return
+	 * Tries to resolve a short type name to the fully qualified name.
+	 *
+	 * @param cu compilation unit that references the type
+	 * @param typeName name of Type (may be shortened form, if import is present)
+	 * @return fully qualified name, if resolving was successful, the short typeName otherwise
 	 */
 	private String resolveTypeName(final CompilationUnit cu, final String typeName) {
 		if (cu.getImports() != null) {
@@ -381,19 +381,19 @@ public class ModelFromSourceBuilder {
 	}
 
 	/**
-	 * @param codeModel
-	 * @param classCodeModel
-	 * @param cu
-	 * @param classType
-	 * @return
+	 * Find a type in the given CodeModel. Tries to resolve type by looking at imports of compilation unit.
+	 *
+	 * @param codeModel instance of JCodeModel
+	 * @param cu CompilationUnit that references the Type
+	 * @param typeName name of Type (may be shortened form, if import is present)
+	 * @return corresponding type in code model
 	 */
-	private JClass findType(final JCodeModel codeModel,
-	        final CompilationUnit cu, final String typeName) {
+	private JClass findType(final JCodeModel codeModel, final CompilationUnit cu, final String typeName) {
 		return codeModel.ref(resolveTypeName(cu, typeName));
 	}
 
 	/**
-	 * Convert a {@link Type} to JClass. This includes generic type information.
+	 * Convert a {@link Type} to {@link JClass}. This includes generic type information.
 	 *
 	 * @param codeModel JCodeModel
 	 * @param possibleGenericType type to convert
@@ -413,7 +413,7 @@ public class ModelFromSourceBuilder {
 				// String[], Boolean[][][], Collection<String>[], ...
 				JClass elementType = convertType(codeModel, cu, type.getType());
 				for (int i = 0; i < type.getArrayCount(); i++) {
-					// add [] as much as needed
+					// add as much [] as needed
 					elementType = elementType.array();
 				}
 				return elementType;
@@ -427,7 +427,6 @@ public class ModelFromSourceBuilder {
 				return upperBound.wildcard();
 			}
 			// List<?>, MyClass<?>, ...
-			// return codeModel.ref(Object.class);
 			return codeModel.wildcard();
 		} else if (possibleGenericType instanceof ClassOrInterfaceType) {
 			final ClassOrInterfaceType type = (ClassOrInterfaceType) possibleGenericType;
@@ -446,7 +445,6 @@ public class ModelFromSourceBuilder {
 			}
 		}
 		// should not get here
-		// return codeModel.ref(possibleGenericType.toString());
 		throw new IllegalArgumentException("cannot convert " + possibleGenericType.toString());
 	}
 }
