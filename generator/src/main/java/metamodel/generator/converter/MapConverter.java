@@ -39,7 +39,7 @@ import com.sun.codemodel.JInvocation;
  *
  * @author Michael Kroll
  */
-public class MapConverter implements FieldCoverter {
+public class MapConverter implements FieldConverter {
 
 	@Override
 	public Class<?> getTargetClass() {

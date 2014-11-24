@@ -37,7 +37,7 @@
 					<execution>
 						<id>test source metamodel generation</id>
 						<goals>
-							<goal>generate-metamodel-test</goal>
+							<goal>generate-test-metamodel</goal>
 						</goals>
 					</execution>
 				</executions>
@@ -54,7 +54,7 @@
 						</goals>
 						<configuration>
 							<sources>
-								<source>${project.build.directory}/generated-metamodel-test</source>
+								<source>${project.build.directory}/generated-test-sources/pojo-metamodel</source>
 							</sources>
 						</configuration>
 					</execution>

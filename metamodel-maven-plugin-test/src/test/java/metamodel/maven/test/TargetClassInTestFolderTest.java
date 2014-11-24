@@ -24,9 +24,9 @@
 package metamodel.maven.test;
 
 import static org.junit.Assert.assertNotNull;
+import metamodel.maven.test.testobject.TargetClassInTestFolder_;
 
 import org.junit.Test;
-import metamodel.maven.test.target.TargetClassInTestFolder_;
 
 /**
  * Tests that generation in a configured folder was triggered and produced a valid output.

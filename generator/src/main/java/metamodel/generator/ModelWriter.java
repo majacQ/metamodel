@@ -32,7 +32,7 @@ import com.sun.codemodel.JCodeModel;
  * Writes generated metamodel to specified folder.
  *
  * @author Michael Kroll
- * @see ModelFromClassBuilder
+ * @see ModelFromSourceBuilder
  */
 public class ModelWriter {
 

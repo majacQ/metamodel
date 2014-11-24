@@ -23,59 +23,9 @@
  */
 package org.example.test;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Inherited;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
 /**
  * @author Michael Kroll
  *
  */
-public @interface TestAnnotation {
-
-	static final int annotationConstant = 42;
-
-	int value();
-
-	/**
-	 * @author Michael Kroll
-	 *
-	 */
-	@Retention(RetentionPolicy.RUNTIME)
-	@Target({ ElementType.TYPE, ElementType.METHOD })
-	@Inherited
-	public static @interface TestAnnotation2 {
-
-		/** text value for testing. */
-		String text();
-
-		/**
-		 * Enum as inner class.
-		 *
-		 * @author Michael Kroll
-		 */
-		public static enum EnumInInnerAnnotation {
-
-			V1(1.1),
-			PI_SHORT(3.141592654);
-
-			private final double value;
-
-			/**
-			 * @param value
-			 */
-			private EnumInInnerAnnotation(final double value) {
-				this.value = value;
-			}
-
-			/**
-			 * @return the value
-			 */
-			public double getValue() {
-				return value;
-			}
-		}
-	}
+public class EmptyClass {
 }

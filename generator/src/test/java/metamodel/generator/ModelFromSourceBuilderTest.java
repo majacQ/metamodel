@@ -47,6 +47,10 @@ public class ModelFromSourceBuilderTest {
 		final Set<File> classes = new HashSet<>();
 		classes.add(new File("src/test/java/ClassInDefaultPackage.java"));
 
+		classes.add(new File("src/test/java/org/example/test/package-info.java"));
+
+		classes.add(new File("src/test/java/org/example/test/EmptyClass.java"));
+
 		classes.add(new File("src/test/java/org/example/test/POJOTestClass.java"));
 		classes.add(new File("src/test/java/org/example/test/POJOTestClass2.java"));
 
