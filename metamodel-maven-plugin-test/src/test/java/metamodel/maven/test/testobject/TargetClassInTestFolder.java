@@ -21,61 +21,28 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package org.example.test;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Inherited;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+package metamodel.maven.test.testobject;
 
 /**
- * @author Michael Kroll
+ * Target-Class for testing metamodel-generation and -access.
  *
+ * @author Michael Kroll
  */
-public @interface TestAnnotation {
+public class TargetClassInTestFolder {
 
-	static final int annotationConstant = 42;
-
-	int value();
+	private int intField;
 
 	/**
-	 * @author Michael Kroll
-	 *
+	 * @return the intField
 	 */
-	@Retention(RetentionPolicy.RUNTIME)
-	@Target({ ElementType.TYPE, ElementType.METHOD })
-	@Inherited
-	public static @interface TestAnnotation2 {
+	public int getIntField() {
+		return intField;
+	}
 
-		/** text value for testing. */
-		String text();
-
-		/**
-		 * Enum as inner class.
-		 *
-		 * @author Michael Kroll
-		 */
-		public static enum EnumInInnerAnnotation {
-
-			V1(1.1),
-			PI_SHORT(3.141592654);
-
-			private final double value;
-
-			/**
-			 * @param value
-			 */
-			private EnumInInnerAnnotation(final double value) {
-				this.value = value;
-			}
-
-			/**
-			 * @return the value
-			 */
-			public double getValue() {
-				return value;
-			}
-		}
+	/**
+	 * @param intField the intField to set
+	 */
+	public void setIntField(final int intField) {
+		this.intField = intField;
 	}
 }

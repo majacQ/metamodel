@@ -21,61 +21,28 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package org.example.test;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Inherited;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+package metamodel.access.testobject;
 
 /**
- * @author Michael Kroll
+ * This is a subclass of POJO that declares a field with the same name as the base class.
  *
+ * @author Michael Kroll
  */
-public @interface TestAnnotation {
+public class SubClassWithSameFieldName extends POJO {
 
-	static final int annotationConstant = 42;
-
-	int value();
+	private int myint;
 
 	/**
-	 * @author Michael Kroll
-	 *
+	 * @return the myint
 	 */
-	@Retention(RetentionPolicy.RUNTIME)
-	@Target({ ElementType.TYPE, ElementType.METHOD })
-	@Inherited
-	public static @interface TestAnnotation2 {
+	public int sub_getMyint() {
+		return myint;
+	}
 
-		/** text value for testing. */
-		String text();
-
-		/**
-		 * Enum as inner class.
-		 *
-		 * @author Michael Kroll
-		 */
-		public static enum EnumInInnerAnnotation {
-
-			V1(1.1),
-			PI_SHORT(3.141592654);
-
-			private final double value;
-
-			/**
-			 * @param value
-			 */
-			private EnumInInnerAnnotation(final double value) {
-				this.value = value;
-			}
-
-			/**
-			 * @return the value
-			 */
-			public double getValue() {
-				return value;
-			}
-		}
+	/**
+	 * @param myint the myint to set
+	 */
+	public void sub_setMyint(final int myint) {
+		this.myint = myint;
 	}
 }

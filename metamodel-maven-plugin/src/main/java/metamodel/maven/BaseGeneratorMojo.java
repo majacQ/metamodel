@@ -40,20 +40,20 @@ import com.sun.codemodel.JCodeModel;
 
 /**
  * Baseclass for all java-&gt;metamodel generator-mojos.
- * 
+ *
  * @author Michael Kroll
  */
 public abstract class BaseGeneratorMojo extends AbstractMojo {
 
-	public void execute(final String[] sources, final String targetDir) throws MojoExecutionException,
+	public void execute(final File[] sources, final File targetDir) throws MojoExecutionException,
 	        MojoFailureException {
 		try {
 			getLog().info("generateDir=" + targetDir);
 			getLog().info("sources=" + Arrays.toString(sources));
 
 			final List<File> files = new ArrayList<>();
-			for (final String compileSourceRoot : sources) {
-				files.addAll(findAllFiles(new File(compileSourceRoot)));
+			for (final File compileSourceRoot : sources) {
+				files.addAll(findAllFiles(compileSourceRoot));
 			}
 			getLog().debug("found files to process:");
 			for (final File file : files) {
@@ -61,7 +61,7 @@ public abstract class BaseGeneratorMojo extends AbstractMojo {
 			}
 
 			final JCodeModel model = new ModelFromSourceBuilder().buildCodeModel(new HashSet<>(files));
-			new ModelWriter().write(model, new File(targetDir));
+			new ModelWriter().write(model, targetDir);
 
 		} catch (final Throwable e) {
 			e.printStackTrace();

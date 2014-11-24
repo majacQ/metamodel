@@ -21,61 +21,78 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package org.example.test;
+package metamodel.access.testobject;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Inherited;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.util.List;
 
 /**
  * @author Michael Kroll
  *
  */
-public @interface TestAnnotation {
+public class POJO {
 
-	static final int annotationConstant = 42;
+	private int myint;
+	private Integer myInteger;
 
-	int value();
+	@SuppressWarnings("rawtypes")
+	private List rawList;
+	private List<?> wildcardList;
 
 	/**
-	 * @author Michael Kroll
-	 *
+	 * @return the myint
 	 */
-	@Retention(RetentionPolicy.RUNTIME)
-	@Target({ ElementType.TYPE, ElementType.METHOD })
-	@Inherited
-	public static @interface TestAnnotation2 {
+	public int getMyint() {
+		return myint;
+	}
 
-		/** text value for testing. */
-		String text();
+	/**
+	 * @param myint the myint to set
+	 */
+	public void setMyint(final int myint) {
+		this.myint = myint;
+	}
 
-		/**
-		 * Enum as inner class.
-		 *
-		 * @author Michael Kroll
-		 */
-		public static enum EnumInInnerAnnotation {
+	/**
+	 * @return the myInteger
+	 */
+	public Integer getMyInteger() {
+		return myInteger;
+	}
 
-			V1(1.1),
-			PI_SHORT(3.141592654);
+	/**
+	 * @param myInteger the myInteger to set
+	 */
+	public void setMyInteger(final Integer myInteger) {
+		this.myInteger = myInteger;
+	}
 
-			private final double value;
+	/**
+	 * @return the rawList
+	 */
+	@SuppressWarnings("rawtypes")
+	public List getRawList() {
+		return rawList;
+	}
 
-			/**
-			 * @param value
-			 */
-			private EnumInInnerAnnotation(final double value) {
-				this.value = value;
-			}
+	/**
+	 * @param rawList the rawList to set
+	 */
+	@SuppressWarnings("rawtypes")
+	public void setRawList(final List rawList) {
+		this.rawList = rawList;
+	}
 
-			/**
-			 * @return the value
-			 */
-			public double getValue() {
-				return value;
-			}
-		}
+	/**
+	 * @return the wildcardList
+	 */
+	public List<?> getWildcardList() {
+		return wildcardList;
+	}
+
+	/**
+	 * @param wildcardList the wildcardList to set
+	 */
+	public void setWildcardList(final List<?> wildcardList) {
+		this.wildcardList = wildcardList;
 	}
 }

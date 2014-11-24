@@ -27,10 +27,10 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.Arrays;
 
-import metamodel.access.target.POJO;
-import metamodel.access.target.POJO_;
-import metamodel.access.target.SubClassWithSameFieldName;
-import metamodel.access.target.SubClassWithSameFieldName_;
+import metamodel.access.testobject.POJO;
+import metamodel.access.testobject.POJO_;
+import metamodel.access.testobject.SubClassWithSameFieldName;
+import metamodel.access.testobject.SubClassWithSameFieldName_;
 
 import org.junit.Test;
 

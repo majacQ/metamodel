@@ -39,7 +39,7 @@ import com.sun.codemodel.JInvocation;
  *
  * @author Michael Kroll
  */
-public class CollectionConverter implements FieldCoverter {
+public class CollectionConverter implements FieldConverter {
 
 	@Override
 	public Class<?> getTargetClass() {

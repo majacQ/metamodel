@@ -23,6 +23,8 @@
  */
 package metamodel.maven;
 
+import java.io.File;
+
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -32,21 +34,25 @@ import org.apache.maven.plugins.annotations.Parameter;
 /**
  * @author Michael Kroll
  */
-@Mojo(name = "generate-metamodel-test", defaultPhase = LifecyclePhase.GENERATE_TEST_SOURCES)
+@Mojo(name = "generate-test-metamodel", defaultPhase = LifecyclePhase.GENERATE_TEST_SOURCES)
 public class GenerateTestMojo extends BaseGeneratorMojo {
 
 	@Parameter
-	private String[] sources;
-	@Parameter(defaultValue = "${project.build.testSourceDirectory}", readonly = true)
-	private String defaultSource;
+	private File[] sources;
 
-	@Parameter(defaultValue = "${project.build.directory}/generated-metamodel-test")
-	private String generateDir;
+	@Parameter(defaultValue = "${project.build.testSourceDirectory}", readonly = true)
+	private File defaultSource;
+
+	@Parameter(defaultValue = "${project.build.directory}/generated-test-sources/pojo-metamodel")
+	private File generateDir;
 
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
 		if (sources == null) {
-			sources = new String[] { defaultSource };
+			if (defaultSource == null) {
+				return;
+			}
+			sources = new File[] { defaultSource };
 		}
 		execute(sources, generateDir);
 	}

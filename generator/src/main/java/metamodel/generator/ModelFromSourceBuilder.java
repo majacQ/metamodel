@@ -46,6 +46,8 @@ import java.io.IOException;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -60,8 +62,8 @@ import metamodel.field.SingularField;
 import metamodel.field.impl.ArrayFieldImpl;
 import metamodel.field.impl.SingularFieldImpl;
 import metamodel.generator.converter.CollectionConverter;
-import metamodel.generator.converter.FieldCoverter;
-import metamodel.generator.converter.FieldCoverter.FieldDefinition;
+import metamodel.generator.converter.FieldConverter;
+import metamodel.generator.converter.FieldConverter.FieldDefinition;
 import metamodel.generator.converter.MapConverter;
 import metamodel.generator.converter.ObjectConverter;
 
@@ -85,7 +87,7 @@ import com.sun.codemodel.JType;
 public class ModelFromSourceBuilder {
 
 	/** List of all FieldConverters. Order is important, first converter with matching class wins. */
-	private static final List<FieldCoverter> FIELDCONVERTERS = Arrays.asList(
+	private static final List<FieldConverter> FIELDCONVERTERS = Arrays.asList(
 	        new CollectionConverter(),
 	        new MapConverter(),
 	        // ObjectConverter has to be last one
@@ -108,7 +110,7 @@ public class ModelFromSourceBuilder {
 
 				// parse the file
 				final CompilationUnit cu = JavaParser.parse(in);
-				for (final TypeDeclaration type : cu.getTypes()) {
+				for (final TypeDeclaration type : nullSafe(cu.getTypes())) {
 					if (type instanceof ClassOrInterfaceDeclaration
 					        || type instanceof EnumDeclaration) {
 						final JDefinedClass classCodeModel =
@@ -134,8 +136,12 @@ public class ModelFromSourceBuilder {
 			final String wantedSuperClassName = entry.getValue();
 			final List<JDefinedClass> candidates = findCandidates(definedClasses, wantedSuperClassName);
 			if (candidates.isEmpty()) {
-				System.out.println("Class " + classCodeModel.fullName() + " has superclass "
-				        + wantedSuperClassName + " which is not included in generation context.");
+				/**
+				 * this is likely not an error, because a source may extend a class from another module.
+				 * <p>
+				 * TODO add support for inter-module-class-hierarchies by trying to load wantedSuperClass. if this
+				 * succeeds, add 'extends'-clause.
+				 */
 				final JDocComment javadoc = classCodeModel.javadoc();
 				javadoc.add("Class " + classCodeModel.fullName() + " has superclass " + wantedSuperClassName
 				        + " which is not included in generation context.");
@@ -204,7 +210,9 @@ public class ModelFromSourceBuilder {
 		} else if (type instanceof EnumDeclaration) {
 			result = ((EnumDeclaration) type).getName();
 		} else {
-			throw new IllegalArgumentException("unknown starting type found while building full type name for " + type);
+			// FIXME fails for ???
+			throw new IllegalArgumentException("unknown starting type " + type.getClass().getName()
+			        + " found while building full type name for " + type);
 		}
 		Node parent = type.getParentNode();
 		while (parent != null) {
@@ -244,7 +252,7 @@ public class ModelFromSourceBuilder {
 		        .param("value", this.getClass().getName())
 		        .param("date", new Date().toString());
 
-		for (final BodyDeclaration member : classType.getMembers()) {
+		for (final BodyDeclaration member : nullSafe(classType.getMembers())) {
 			if (member instanceof FieldDeclaration) {
 				final FieldDeclaration field = (FieldDeclaration) member;
 				if (Modifier.isStatic(field.getModifiers())) {
@@ -254,7 +262,7 @@ public class ModelFromSourceBuilder {
 			}
 		}
 
-		for (final BodyDeclaration member : classType.getMembers()) {
+		for (final BodyDeclaration member : nullSafe(classType.getMembers())) {
 			if (member instanceof TypeDeclaration) {
 				try {
 					final TypeDeclaration innerType = (TypeDeclaration) member;
@@ -262,7 +270,8 @@ public class ModelFromSourceBuilder {
 					final JDefinedClass innerClassModel =
 					        classCodeModel._class(JMod.PUBLIC | JMod.STATIC | JMod.ABSTRACT,
 					                getMetaModelClassName(innerType), ClassType.CLASS);
-					// build full class name of inner class, because metamodel needs to import it for base of members
+					// build full class name of inner class, because metamodel needs to import it for base of
+					// members
 					final String fullInnerClassName = getFullClassName(innerType);
 					final JClass innerBaseType = codeModel.ref(fullInnerClassName);
 					defineClass(codeModel, innerClassModel, innerBaseType, cu, innerType, definedClasses,
@@ -290,13 +299,13 @@ public class ModelFromSourceBuilder {
 		final Type fieldType = field.getType();
 		final JClass convertedType = convertType(codeModel, cu, fieldType);
 
-		for (final VariableDeclarator variable : field.getVariables()) {
+		for (final VariableDeclarator variable : nullSafe(field.getVariables())) {
 			final JClass fieldClazz;
 			final JInvocation fieldInit;
 			if (convertedType.isPrimitive()) {
 				final JClass rawLLclazz = codeModel.ref(SingularField.class);
 				fieldClazz = rawLLclazz.narrow(baseType, convertedType);
-				fieldInit = JExpr._new(codeModel.ref(SingularFieldImpl.class).narrow(FieldCoverter.DIAMOND))
+				fieldInit = JExpr._new(codeModel.ref(SingularFieldImpl.class).narrow(FieldConverter.DIAMOND))
 				        .arg(variable.getId().getName()).arg(baseType.dotclass());
 			} else if (convertedType.isArray()) {
 				final JClass rawLLclazz = codeModel.ref(ArrayField.class);
@@ -306,10 +315,10 @@ public class ModelFromSourceBuilder {
 					collectionElementType = collectionElementType.elementType().boxify();
 				}
 				fieldClazz = rawLLclazz.narrow(baseType, convertedType, collectionElementType);
-				fieldInit = JExpr._new(codeModel.ref(ArrayFieldImpl.class).narrow(FieldCoverter.DIAMOND))
+				fieldInit = JExpr._new(codeModel.ref(ArrayFieldImpl.class).narrow(FieldConverter.DIAMOND))
 				        .arg(variable.getId().getName()).arg(baseType.dotclass());
 			} else {
-				final FieldCoverter fieldConverter = findFieldCoverter(codeModel, convertedType);
+				final FieldConverter fieldConverter = findFieldCoverter(codeModel, convertedType);
 				if (fieldConverter == null) {
 					// should not happen if ObjectConverter is present
 					System.err.println("cannot convert " + baseType.fullName() + "#" + variable.getId().getName()
@@ -340,8 +349,8 @@ public class ModelFromSourceBuilder {
 	 * @param convertedType type to search a FieldConverter for
 	 * @return FieldCoverter
 	 */
-	private FieldCoverter findFieldCoverter(final JCodeModel codeModel, final JClass convertedType) {
-		for (final FieldCoverter fieldConverter : FIELDCONVERTERS) {
+	private FieldConverter findFieldCoverter(final JCodeModel codeModel, final JClass convertedType) {
+		for (final FieldConverter fieldConverter : FIELDCONVERTERS) {
 			if (codeModel.ref(fieldConverter.getTargetClass()).isAssignableFrom(convertedType.erasure())) {
 				return fieldConverter;
 			}
@@ -370,11 +379,9 @@ public class ModelFromSourceBuilder {
 	 * @return fully qualified name, if resolving was successful, the short typeName otherwise
 	 */
 	private String resolveTypeName(final CompilationUnit cu, final String typeName) {
-		if (cu.getImports() != null) {
-			for (final ImportDeclaration imp : cu.getImports()) {
-				if (imp.getName().toString().endsWith("." + typeName)) {
-					return imp.getName().toString();
-				}
+		for (final ImportDeclaration imp : nullSafe(cu.getImports())) {
+			if (imp.getName().toString().endsWith("." + typeName)) {
+				return imp.getName().toString();
 			}
 		}
 		return typeName;
@@ -446,5 +453,12 @@ public class ModelFromSourceBuilder {
 		}
 		// should not get here
 		throw new IllegalArgumentException("cannot convert " + possibleGenericType.toString());
+	}
+
+	private <T> Collection<T> nullSafe(final Collection<T> collection) {
+		if (collection != null) {
+			return collection;
+		}
+		return Collections.<T> emptyList();
 	}
 }
