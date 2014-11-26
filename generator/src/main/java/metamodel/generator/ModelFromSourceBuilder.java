@@ -205,12 +205,9 @@ public class ModelFromSourceBuilder {
 		String result;
 		if (type instanceof ClassOrInterfaceType) {
 			result = ((ClassOrInterfaceType) type).getName();
-		} else if (type instanceof ClassOrInterfaceDeclaration) {
-			result = ((ClassOrInterfaceDeclaration) type).getName();
-		} else if (type instanceof EnumDeclaration) {
-			result = ((EnumDeclaration) type).getName();
+		} else if (type instanceof TypeDeclaration) {
+			result = ((TypeDeclaration) type).getName();
 		} else {
-			// FIXME fails for ???
 			throw new IllegalArgumentException("unknown starting type " + type.getClass().getName()
 			        + " found while building full type name for " + type);
 		}
