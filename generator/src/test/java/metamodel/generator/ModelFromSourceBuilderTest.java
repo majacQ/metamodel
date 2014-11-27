@@ -45,11 +45,13 @@ public class ModelFromSourceBuilderTest {
 	@Test
 	public void testPOJOModelGeneration() throws Exception {
 		final Set<File> classes = new HashSet<>();
+        classes.add(new File("src/test/java/org/example/test/nonexistentfile.java"));
+
 		classes.add(new File("src/test/java/ClassInDefaultPackage.java"));
 
 		classes.add(new File("src/test/java/org/example/test/package-info.java"));
 
-		classes.add(new File("src/test/java/org/example/test/EmptyClass.java"));
+        classes.add(new File("src/test/java/org/example/test/EmptyClass.java"));
 
 		classes.add(new File("src/test/java/org/example/test/POJOTestClass.java"));
 		classes.add(new File("src/test/java/org/example/test/POJOTestClass2.java"));
@@ -70,6 +72,8 @@ public class ModelFromSourceBuilderTest {
 		classes.add(new File("src/test/java/org/example/test/TestAnnotation.java"));
 		classes.add(new File("src/test/java/org/example/test/TestEnum.java"));
 		classes.add(new File("src/test/java/org/example/test/TestInterface.java"));
+
+        classes.add(new File("src/test/java/org/example/test/WeirdCommentParseExceptionClass.java"));
 
 		final JCodeModel codeModel = new ModelFromSourceBuilder().buildCodeModel(classes);
 		new ModelWriter().write(codeModel, new File("target/generated-pojo-metamodel"));

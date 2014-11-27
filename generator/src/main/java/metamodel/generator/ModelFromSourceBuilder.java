@@ -106,10 +106,16 @@ public class ModelFromSourceBuilder {
 		final JCodeModel codeModel = new JCodeModel();
 		// 1. build code model for all classes, excluding "extends"-definitions (they are added in a later step)
 		for (final File sourceFile : sourceFiles) {
-			try (FileInputStream in = new FileInputStream(sourceFile)) {
-
-				// parse the file
-				final CompilationUnit cu = JavaParser.parse(in);
+            // parse the file
+            final CompilationUnit cu;
+            try (FileInputStream in = new FileInputStream(sourceFile)) {
+                cu = JavaParser.parse(in);
+            } catch (final IOException | ParseException | RuntimeException e) {
+                System.err.println("unable to read source file " + sourceFile + ": " + e.getMessage());
+                continue;
+            }
+            // write file
+            try {
 				for (final TypeDeclaration type : nullSafe(cu.getTypes())) {
 					if (type instanceof ClassOrInterfaceDeclaration
 					        || type instanceof EnumDeclaration) {
@@ -121,12 +127,8 @@ public class ModelFromSourceBuilder {
 						defineClass(codeModel, classCodeModel, baseType, cu, type, definedClasses, classesToExtend);
 					}
 				}
-			} catch (final IOException | ParseException e) {
-				// exception on reader side
-				System.err.println("unable to read source file " + sourceFile + ": " + e.getMessage());
-			} catch (final JClassAlreadyExistsException e) {
-				// exception on writer side
-				throw new RuntimeException(e);
+            } catch (final JClassAlreadyExistsException | RuntimeException e) {
+                System.err.println("unable to write meta class file for source file " + sourceFile + ": " + e.getMessage());
 			}
 		}
 
