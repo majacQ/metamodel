@@ -23,10 +23,10 @@
  */
 package metamodel.method.impl;
 
-import metamodel.method.Method1;
+import metamodel.method.Method4;
 
 /**
- * Implementation for method-definitions with one parameter.
+ * Implementation for method-definitions with 4 parameters.
  * <p>
  * For Methods with return type {@code void}, the type parameter RT is {@link Void}.
  *
@@ -34,10 +34,15 @@ import metamodel.method.Method1;
  * @param <BASE> type of class that declares the method
  * @param <RT> return type
  * @param <P1> type of first parameter
+ * @param <P2> type of second parameter
+ * @param <P3> type of third parameter
+ * @param <P4> type of 4th parameter
  */
-public class Method1Impl<BASE, RT, P1> extends AbstractMethodImpl<BASE, RT> implements Method1<BASE, RT, P1> {
+public class Method4Impl<BASE, RT, P1, P2, P3, P4> extends AbstractMethodImpl<BASE, RT>
+        implements Method4<BASE, RT, P1, P2, P3, P4> {
 
-	public Method1Impl(final String name, final Class<BASE> declaringClass, final Class<?> param1Class) {
-		super(name, declaringClass, param1Class);
+	public Method4Impl(final String name, final Class<BASE> declaringClass, final Class<?> param1Class,
+	        final Class<?> param2Class, final Class<?> param3Class, final Class<?> param4Class) {
+		super(name, declaringClass, param1Class, param2Class, param3Class, param4Class);
 	}
 }

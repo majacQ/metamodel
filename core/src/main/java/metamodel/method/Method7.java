@@ -21,12 +21,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package metamodel.method.impl;
-
-import metamodel.method.Method1;
+package metamodel.method;
 
 /**
- * Implementation for method-definitions with one parameter.
+ * Interface for method-definitions with 7 parameters.
  * <p>
  * For Methods with return type {@code void}, the type parameter RT is {@link Void}.
  *
@@ -34,10 +32,12 @@ import metamodel.method.Method1;
  * @param <BASE> type of class that declares the method
  * @param <RT> return type
  * @param <P1> type of first parameter
+ * @param <P2> type of second parameter
+ * @param <P3> type of third parameter
+ * @param <P4> type of 4th parameter
+ * @param <P5> type of 5th parameter
+ * @param <P6> type of 6th parameter
+ * @param <P7> type of 7th parameter
  */
-public class Method1Impl<BASE, RT, P1> extends AbstractMethodImpl<BASE, RT> implements Method1<BASE, RT, P1> {
-
-	public Method1Impl(final String name, final Class<BASE> declaringClass, final Class<?> param1Class) {
-		super(name, declaringClass, param1Class);
-	}
+public interface Method7<BASE, RT, P1, P2, P3, P4, P5, P6, P7> extends AbstractMethod<BASE, RT> {
 }

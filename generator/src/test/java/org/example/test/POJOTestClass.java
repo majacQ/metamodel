@@ -104,5 +104,4 @@ public class POJOTestClass {
 
 	// crazy definition
 	private Map<? extends List<String[]>[], ? extends List<? extends POJOTestClass[]>[]>[] customWildcardExtendsGenericMapWithArrays;
-
 }

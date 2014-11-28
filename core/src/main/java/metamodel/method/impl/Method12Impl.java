@@ -23,10 +23,10 @@
  */
 package metamodel.method.impl;
 
-import metamodel.method.Method1;
+import metamodel.method.Method12;
 
 /**
- * Implementation for method-definitions with one parameter.
+ * Implementation for method-definitions with 12 parameters.
  * <p>
  * For Methods with return type {@code void}, the type parameter RT is {@link Void}.
  *
@@ -34,10 +34,27 @@ import metamodel.method.Method1;
  * @param <BASE> type of class that declares the method
  * @param <RT> return type
  * @param <P1> type of first parameter
+ * @param <P2> type of second parameter
+ * @param <P3> type of third parameter
+ * @param <P4> type of 4th parameter
+ * @param <P5> type of 5th parameter
+ * @param <P6> type of 6th parameter
+ * @param <P7> type of 7th parameter
+ * @param <P8> type of 8th parameter
+ * @param <P9> type of 9th parameter
+ * @param <P10> type of 10th parameter
+ * @param <P11> type of 11th parameter
+ * @param <P12> type of 12th parameter
  */
-public class Method1Impl<BASE, RT, P1> extends AbstractMethodImpl<BASE, RT> implements Method1<BASE, RT, P1> {
+public class Method12Impl<BASE, RT, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12> extends
+        AbstractMethodImpl<BASE, RT> implements Method12<BASE, RT, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12> {
 
-	public Method1Impl(final String name, final Class<BASE> declaringClass, final Class<?> param1Class) {
-		super(name, declaringClass, param1Class);
+	public Method12Impl(final String name, final Class<BASE> declaringClass, final Class<?> param1Class,
+	        final Class<?> param2Class, final Class<?> param3Class, final Class<?> param4Class,
+	        final Class<?> param5Class, final Class<?> param6Class, final Class<?> param7Class,
+	        final Class<?> param8Class, final Class<?> param9Class, final Class<?> param10Class,
+	        final Class<?> param11Class, final Class<?> param12Class) {
+		super(name, declaringClass, param1Class, param2Class, param3Class, param4Class, param5Class, param6Class,
+		        param7Class, param8Class, param9Class, param10Class, param11Class, param12Class);
 	}
 }

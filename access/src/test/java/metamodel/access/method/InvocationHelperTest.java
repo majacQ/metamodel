@@ -21,23 +21,32 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package metamodel.method.impl;
+package metamodel.access.method;
 
+import metamodel.access.AccessorUtil;
 import metamodel.method.Method1;
+import metamodel.method.impl.Method1Impl;
+
+import org.junit.Test;
 
 /**
- * Implementation for method-definitions with one parameter.
- * <p>
- * For Methods with return type {@code void}, the type parameter RT is {@link Void}.
- *
  * @author Michael Kroll
- * @param <BASE> type of class that declares the method
- * @param <RT> return type
- * @param <P1> type of first parameter
+ *
  */
-public class Method1Impl<BASE, RT, P1> extends AbstractMethodImpl<BASE, RT> implements Method1<BASE, RT, P1> {
+public class InvocationHelperTest {
 
-	public Method1Impl(final String name, final Class<BASE> declaringClass, final Class<?> param1Class) {
-		super(name, declaringClass, param1Class);
+	public static class Target {
+		public void meth(final String text) {
+			System.out.println(text);
+		}
+	}
+
+	public static class Target_ {
+		public static Method1<Target, Void, String> meth = new Method1Impl<>("meth", Target.class, String.class);
+	}
+
+	@Test
+	public void testName() throws Exception {
+		AccessorUtil.on(new Target()).method(Target_.meth).invoke("hello world!!!");
 	}
 }

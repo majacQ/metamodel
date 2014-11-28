@@ -32,12 +32,16 @@ import japa.parser.ast.body.BodyDeclaration;
 import japa.parser.ast.body.ClassOrInterfaceDeclaration;
 import japa.parser.ast.body.EnumDeclaration;
 import japa.parser.ast.body.FieldDeclaration;
+import japa.parser.ast.body.MethodDeclaration;
+import japa.parser.ast.body.Parameter;
 import japa.parser.ast.body.TypeDeclaration;
 import japa.parser.ast.body.VariableDeclarator;
+import japa.parser.ast.comments.Comment;
 import japa.parser.ast.type.ClassOrInterfaceType;
 import japa.parser.ast.type.PrimitiveType;
 import japa.parser.ast.type.ReferenceType;
 import japa.parser.ast.type.Type;
+import japa.parser.ast.type.VoidType;
 import japa.parser.ast.type.WildcardType;
 
 import java.io.File;
@@ -66,6 +70,8 @@ import metamodel.generator.converter.FieldConverter;
 import metamodel.generator.converter.FieldConverter.FieldDefinition;
 import metamodel.generator.converter.MapConverter;
 import metamodel.generator.converter.ObjectConverter;
+import metamodel.method.Method0;
+import metamodel.method.impl.Method0Impl;
 
 import com.sun.codemodel.ClassType;
 import com.sun.codemodel.JClass;
@@ -106,16 +112,16 @@ public class ModelFromSourceBuilder {
 		final JCodeModel codeModel = new JCodeModel();
 		// 1. build code model for all classes, excluding "extends"-definitions (they are added in a later step)
 		for (final File sourceFile : sourceFiles) {
-            // parse the file
-            final CompilationUnit cu;
-            try (FileInputStream in = new FileInputStream(sourceFile)) {
-                cu = JavaParser.parse(in);
-            } catch (final IOException | ParseException | RuntimeException e) {
-                System.err.println("unable to read source file " + sourceFile + ": " + e.getMessage());
-                continue;
-            }
-            // write file
-            try {
+			// parse the file
+			final CompilationUnit cu;
+			try (FileInputStream in = new FileInputStream(sourceFile)) {
+				cu = JavaParser.parse(in);
+			} catch (final IOException | ParseException | RuntimeException e) {
+				System.err.println("unable to read source file " + sourceFile + ": " + e.getMessage());
+				continue;
+			}
+			// write file
+			try {
 				for (final TypeDeclaration type : nullSafe(cu.getTypes())) {
 					if (type instanceof ClassOrInterfaceDeclaration
 					        || type instanceof EnumDeclaration) {
@@ -127,8 +133,9 @@ public class ModelFromSourceBuilder {
 						defineClass(codeModel, classCodeModel, baseType, cu, type, definedClasses, classesToExtend);
 					}
 				}
-            } catch (final JClassAlreadyExistsException | RuntimeException e) {
-                System.err.println("unable to write meta class file for source file " + sourceFile + ": " + e.getMessage());
+			} catch (final JClassAlreadyExistsException | RuntimeException e) {
+				System.err.println("unable to write meta class file for source file " + sourceFile + ": "
+				        + e.getMessage());
 			}
 		}
 
@@ -251,6 +258,7 @@ public class ModelFromSourceBuilder {
 		        .param("value", this.getClass().getName())
 		        .param("date", new Date().toString());
 
+		// first generate fields for fields, so field names are equal to those in original class
 		for (final BodyDeclaration member : nullSafe(classType.getMembers())) {
 			if (member instanceof FieldDeclaration) {
 				final FieldDeclaration field = (FieldDeclaration) member;
@@ -258,6 +266,16 @@ public class ModelFromSourceBuilder {
 					continue;
 				}
 				addField(codeModel, classCodeModel, baseType, cu, classType, field);
+			}
+		}
+		// now generate fields for methods, with automatic suffix for already present fields
+		for (final BodyDeclaration member : nullSafe(classType.getMembers())) {
+			if (member instanceof MethodDeclaration) {
+				final MethodDeclaration method = (MethodDeclaration) member;
+				if (Modifier.isStatic(method.getModifiers())) {
+					continue;
+				}
+				addMethod(codeModel, classCodeModel, baseType, cu, classType, method);
 			}
 		}
 
@@ -334,11 +352,101 @@ public class ModelFromSourceBuilder {
 			        variable.getId().getName());
 			f.init(fieldInit);
 			if (field.getComment() != null) {
-				f.javadoc().add(extractOriginalJavadoc(field));
+				f.javadoc().add(extractOriginalJavadoc(field.getComment()));
 				f.javadoc().add("\n\n");
 			}
 			f.javadoc().add("@see " + classType.getName() + "#" + variable.getId().getName());
 		}
+	}
+
+	/**
+	 * Add method-definition to metamodel.
+	 *
+	 * @param codeModel JCodeModel
+	 * @param classCodeModel class-definition to fill
+	 * @param cu
+	 * @param classType
+	 * @param method real-world-method
+	 */
+	private void addMethod(final JCodeModel codeModel, final JDefinedClass classCodeModel, final JClass baseType,
+	        final CompilationUnit cu, final TypeDeclaration classType, final MethodDeclaration method) {
+		final Type returnType = method.getType();
+		final JClass convertedReturnType = convertType(codeModel, cu, returnType);
+
+		final Collection<Parameter> parameters = nullSafe(method.getParameters());
+		final List<JClass> typeArguments = new ArrayList<>();
+
+		final String methodDefinitionName = Method0.class.getName().replace("0", String.valueOf(parameters.size()));
+		final String methodDefinitionImplName = Method0Impl.class.getName().replace("0",
+		        String.valueOf(parameters.size()));
+
+		typeArguments.add(baseType);
+		typeArguments.add(convertedReturnType);
+
+		final List<JClass> convertedParameterClasses = new ArrayList<>();
+		for (final Parameter parameter : parameters) {
+			final JClass convertedParameterType = convertType(codeModel, cu, parameter.getType());
+			typeArguments.add(convertedParameterType);
+			convertedParameterClasses.add(convertedParameterType);
+		}
+
+		final String uniqueFieldName = getUniqueFieldname(classCodeModel, method, parameters);
+		final JFieldVar f = classCodeModel.field(JMod.PUBLIC | JMod.STATIC | JMod.FINAL,
+		        codeModel.ref(methodDefinitionName).narrow(typeArguments), uniqueFieldName);
+		final JInvocation fieldInit = JExpr
+		        ._new(codeModel.ref(methodDefinitionImplName).narrow(FieldConverter.DIAMOND))
+		        .arg(method.getName()).arg(baseType.dotclass());
+		for (final JClass convertedParameterClass : convertedParameterClasses) {
+			fieldInit.arg(convertedParameterClass.dotclass());
+		}
+		f.init(fieldInit);
+		f.javadoc().add("@see " + classType.getName() + "#" + method.getName() +
+		        "(" + extractTypesForJavaDoc(parameters) + ")");
+	}
+
+	/**
+	 * @param classCodeModel
+	 * @param method
+	 * @param parameters
+	 * @return
+	 */
+	private String getUniqueFieldname(final JDefinedClass classCodeModel, final MethodDeclaration method,
+            final Collection<Parameter> parameters) {
+		// 1st try: method name
+	    final String uniqueFieldName = method.getName();
+		if (classCodeModel.fields().get(uniqueFieldName) == null) {
+			return uniqueFieldName;
+		}
+		// 2nd try: method name + _ + parameter count
+		final String uniqueFieldNameWithParamCount = uniqueFieldName + "_" + parameters.size();
+		if (classCodeModel.fields().get(uniqueFieldNameWithParamCount) == null) {
+			return uniqueFieldNameWithParamCount;
+		}
+		// 3rd try: method name + _ + parameter count + _ + counter
+		String uniqueFieldNameWithParamCountAndCounter = uniqueFieldNameWithParamCount;
+		int counter = 2;
+		while (true) {
+			uniqueFieldNameWithParamCountAndCounter = uniqueFieldNameWithParamCount + "_" + counter;
+			if (classCodeModel.fields().get(uniqueFieldNameWithParamCountAndCounter) == null) {
+				return uniqueFieldNameWithParamCountAndCounter;
+			}
+			counter++;
+		}
+	}
+
+	/**
+	 * @param parameters Collection<Parameter>
+	 * @return Type [, Type[, Type ...]]
+	 */
+	private String extractTypesForJavaDoc(final Collection<Parameter> parameters) {
+		final StringBuilder sb = new StringBuilder();
+		for (final Parameter parameter : parameters) {
+			if (sb.length() > 0) {
+				sb.append(", ");
+			}
+			sb.append(parameter.getType().toString());
+		}
+		return sb.toString();
 	}
 
 	/**
@@ -358,13 +466,13 @@ public class ModelFromSourceBuilder {
 	}
 
 	/**
-	 * Extracts javadoc from a field declaration.
+	 * Extracts javadoc from a comment declaration.
 	 *
-	 * @param field the field
+	 * @param comment the comment
 	 * @return the original javadoc
 	 */
-	private String extractOriginalJavadoc(final FieldDeclaration field) {
-		final String originalContent = field.getComment().getContent();
+	private String extractOriginalJavadoc(final Comment comment) {
+		final String originalContent = comment.getContent();
 		// remove starting '* ' from every line
 		final String processedContent = originalContent.replaceAll("\n[\t ]*\\*", "\n");
 		return processedContent;
@@ -406,7 +514,9 @@ public class ModelFromSourceBuilder {
 	 * @return converted type
 	 */
 	private JClass convertType(final JCodeModel codeModel, final CompilationUnit cu, final Type possibleGenericType) {
-		if (possibleGenericType instanceof PrimitiveType) {
+		if (possibleGenericType instanceof VoidType) {
+			return codeModel.VOID.boxify();
+		} else if (possibleGenericType instanceof PrimitiveType) {
 			// int, boolean, short, ...
 			final PrimitiveType type = (PrimitiveType) possibleGenericType;
 			return JType.parse(codeModel, type.getType().toString().toLowerCase()).boxify();

@@ -20,6 +20,11 @@
 			<groupId>metamodel</groupId>
 			<artifactId>metamodel-maven-plugin</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>metamodel</groupId>
+			<artifactId>accessor</artifactId>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 
 	<build>

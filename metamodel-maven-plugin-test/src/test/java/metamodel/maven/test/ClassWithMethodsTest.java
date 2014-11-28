@@ -21,23 +21,21 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package metamodel.method.impl;
+package metamodel.maven.test;
 
-import metamodel.method.Method1;
+import metamodel.maven.test.testobject.ClassWithMethods;
+
+import org.junit.Test;
 
 /**
- * Implementation for method-definitions with one parameter.
- * <p>
- * For Methods with return type {@code void}, the type parameter RT is {@link Void}.
- *
  * @author Michael Kroll
- * @param <BASE> type of class that declares the method
- * @param <RT> return type
- * @param <P1> type of first parameter
  */
-public class Method1Impl<BASE, RT, P1> extends AbstractMethodImpl<BASE, RT> implements Method1<BASE, RT, P1> {
+public class ClassWithMethodsTest {
 
-	public Method1Impl(final String name, final Class<BASE> declaringClass, final Class<?> param1Class) {
-		super(name, declaringClass, param1Class);
+	private final ClassWithMethods object = new ClassWithMethods();
+
+	@Test
+	public void testName() throws Exception {
+		// AccessorUtil.on(object).method(ClassWithMethods_.m1).
 	}
 }

@@ -23,10 +23,10 @@
  */
 package metamodel.method.impl;
 
-import metamodel.method.Method1;
+import metamodel.method.Method6;
 
 /**
- * Implementation for method-definitions with one parameter.
+ * Implementation for method-definitions with 6 parameters.
  * <p>
  * For Methods with return type {@code void}, the type parameter RT is {@link Void}.
  *
@@ -34,10 +34,18 @@ import metamodel.method.Method1;
  * @param <BASE> type of class that declares the method
  * @param <RT> return type
  * @param <P1> type of first parameter
+ * @param <P2> type of second parameter
+ * @param <P3> type of third parameter
+ * @param <P4> type of 4th parameter
+ * @param <P5> type of 5th parameter
+ * @param <P6> type of 6th parameter
  */
-public class Method1Impl<BASE, RT, P1> extends AbstractMethodImpl<BASE, RT> implements Method1<BASE, RT, P1> {
+public class Method6Impl<BASE, RT, P1, P2, P3, P4, P5, P6> extends AbstractMethodImpl<BASE, RT>
+        implements Method6<BASE, RT, P1, P2, P3, P4, P5, P6> {
 
-	public Method1Impl(final String name, final Class<BASE> declaringClass, final Class<?> param1Class) {
-		super(name, declaringClass, param1Class);
+	public Method6Impl(final String name, final Class<BASE> declaringClass, final Class<?> param1Class,
+	        final Class<?> param2Class, final Class<?> param3Class, final Class<?> param4Class,
+	        final Class<?> param5Class, final Class<?> param6Class) {
+		super(name, declaringClass, param1Class, param2Class, param3Class, param4Class, param5Class, param6Class);
 	}
 }
