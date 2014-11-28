@@ -66,4 +66,8 @@ public class AccessorUtil {
 		}
 		return field;
 	}
+
+	public static <BASE> ObjectAccessor<BASE> on(final BASE object) {
+		return new ObjectAccessor<>(object);
+	}
 }

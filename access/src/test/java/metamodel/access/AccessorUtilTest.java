@@ -31,6 +31,8 @@ import metamodel.access.testobject.POJO;
 import metamodel.access.testobject.POJO_;
 import metamodel.access.testobject.SubClassWithSameFieldName;
 import metamodel.access.testobject.SubClassWithSameFieldName_;
+import metamodel.method.Method1;
+import metamodel.method.impl.Method1Impl;
 
 import org.junit.Test;
 
@@ -99,5 +101,20 @@ public class AccessorUtilTest {
 		AccessorUtil.set(pojo, SubClassWithSameFieldName_.myint, 13);
 		assertEquals(7, pojo.getMyint());
 		assertEquals(13, pojo.sub_getMyint());
+	}
+
+	public static class Target {
+		public void meth(final String text) {
+			System.out.println(text);
+		}
+	}
+
+	public static class Target_ {
+		public static Method1<Target, Void, String> meth = new Method1Impl<>("meth", Target.class, String.class);
+	}
+
+	@Test
+	public void testName() throws Exception {
+		AccessorUtil.on(new Target()).method(Target_.meth).invoke("hello world!!!");
 	}
 }
