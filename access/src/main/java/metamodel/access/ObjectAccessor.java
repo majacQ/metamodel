@@ -61,7 +61,26 @@ import metamodel.method.Method8;
 import metamodel.method.Method9;
 
 /**
- * Accessor methods for object instances.
+ * Allows access of fields and methods of object instances, even if they are private. Use it as follows:
+ *
+ * <pre>
+ * // field manipulation
+ * ObjectAccessor.on(targetObject).field(TargetObject_.field).set(42);
+ * int fortyTwo = ObjectAccessor.on(targetObject).field(TargetObject_.field).get();
+ * 
+ * // method invocation
+ * ObjectAccessor.on(targetObject).method(TargetObject_.aVoidMethod).invoke(&quot;Hello World!&quot;);
+ * int fortyTwo = ObjectAccessor.on(targetObject).method(TargetObject_.getField).invoke();
+ * 
+ * // this is an example class that the above ObjectAccessor example uses
+ * class TargetObject {
+ * 	private int field;
+ * 
+ * 	private int getField() {
+ * 		return field;
+ * 	}
+ * }
+ * </pre>
  *
  * @author Michael Kroll
  * @param <BASE> type of object to be accessed

@@ -35,11 +35,11 @@ import metamodel.access.testobject.SubClassWithSameFieldName_;
 import org.junit.Test;
 
 /**
- * Tests AccessorUtil.
+ * Tests ObjectAccessor.
  *
  * @author Michael Kroll
  */
-public class AccessorUtilTest {
+public class ObjectAccessorTest {
 
 	@Test
 	public void testPOJOSetterGetter() throws Exception {

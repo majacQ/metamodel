@@ -29,11 +29,15 @@ import java.lang.reflect.Method;
 import metamodel.method.AbstractMethod;
 
 /**
- * Invokes defined methods on objects.
+ * Invokes defined methods on objects. Used by Callables.
  *
  * @author Michael Kroll
  */
 public class MethodHelper {
+
+	/** Hide Utility Constructor. */
+	private MethodHelper() {
+	}
 
 	/**
 	 * Invokes a defined method on an object instance.

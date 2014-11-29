@@ -23,34 +23,21 @@
  */
 package metamodel.access;
 
-
-public class Accessor<BASE> {
-
+/**
+ * Factory for {@link ObjectAccessor}.
+ *
+ * @author Michael Kroll
+ * @see #on(Object)
+ * @see ObjectAccessor
+ */
+public class Accessor {
 
 	/**
-	 * Create new Object Accessor for object. Use it as follows:
-	 *
-	 * <pre>
-	 * // this is a example class that should be used as demonstration target
-	 * class TargetObject {
-	 * 	private int field;
-	 *
-	 * 	private int getField() {
-	 * 		return field;
-	 * 	}
-	 * }
-	 *
-	 * // field manipulation
-	 * ObjectAccessor.on(targetObject).field(TargetObject_.field).set(42);
-	 * int fortyTwo = ObjectAccessor.on(targetObject).field(TargetObject_.field).get();
-	 *
-	 * // method invocation
-	 * ObjectAccessor.on(targetObject).method(TargetObject_.aVoidMethod).invoke(&quot;Hello World!&quot;);
-	 * int fortyTwo = ObjectAccessor.on(targetObject).method(TargetObject_.getField).invoke();
-	 * </pre>
+	 * Create new Object Accessor for object.
 	 *
 	 * @param object
 	 * @return
+	 * @see ObjectAccessor
 	 */
 	public static <BASE> ObjectAccessor<BASE> on(final BASE object) {
 		return new ObjectAccessor<>(object);
