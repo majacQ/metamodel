@@ -21,15 +21,39 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package metamodel.field;
+package metamodel.method;
 
 /**
- * Interface for array-field-definition. If a field is defined as {@code X[] field;}, then this kind of field-definition
- * is used.
+ * Base interface for all method-definitions.
+ * <p>
+ * For Methods with return type {@code void}, the type parameter RT is {@link Void}.
+ * <p>
+ * By convention, each subclass/interface should have the same type arguments at the same positions: &lt;BASE, RT [,
+ * ...]&gt;.
  *
  * @author Michael Kroll
- * @param <BASE> type of class that declares the field
- * @param <ARRTYPE> type of aggregating array, eg. Boolean[][][]
+ * @param <BASE> type of class that declares the method
+ * @param <RT> return type
  */
-public interface ArrayField<BASE, ARRTYPE> extends PluralField<BASE, ARRTYPE> {
+public interface AbstractMethod<BASE, RT> {
+	/**
+	 * Get the name of the field.
+	 *
+	 * @return the name of the field
+	 */
+	String getName();
+
+	/**
+	 * Get class that declares the field.
+	 *
+	 * @return class that declares the field
+	 */
+	Class<BASE> getDeclaringClass();
+
+	/**
+	 * Get classes of defined Parameters.
+	 * 
+	 * @return classes of defined Parameters, in order of their declaration
+	 */
+	Class<?>[] getParameterClasses();
 }

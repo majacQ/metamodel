@@ -21,15 +21,27 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package metamodel.field;
+package metamodel.method.impl;
+
+import metamodel.method.Method3;
 
 /**
- * Interface for array-field-definition. If a field is defined as {@code X[] field;}, then this kind of field-definition
- * is used.
+ * Implementation for method-definitions with three parameters.
+ * <p>
+ * For Methods with return type {@code void}, the type parameter RT is {@link Void}.
  *
  * @author Michael Kroll
- * @param <BASE> type of class that declares the field
- * @param <ARRTYPE> type of aggregating array, eg. Boolean[][][]
+ * @param <BASE> type of class that declares the method
+ * @param <RT> return type
+ * @param <P1> type of first parameter
+ * @param <P2> type of second parameter
+ * @param <P3> type of third parameter
  */
-public interface ArrayField<BASE, ARRTYPE> extends PluralField<BASE, ARRTYPE> {
+public class Method3Impl<BASE, RT, P1, P2, P3> extends AbstractMethodImpl<BASE, RT> implements
+        Method3<BASE, RT, P1, P2, P3> {
+
+	public Method3Impl(final String name, final Class<BASE> declaringClass, final Class<?> param1Class,
+	        final Class<?> param2Class, final Class<?> param3Class) {
+		super(name, declaringClass, param1Class, param2Class, param3Class);
+	}
 }

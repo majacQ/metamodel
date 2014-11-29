@@ -32,6 +32,8 @@ public class SubClassWithSameFieldName extends POJO {
 
 	private int myint;
 
+	private String subString;
+
 	/**
 	 * @return the myint
 	 */
@@ -44,5 +46,19 @@ public class SubClassWithSameFieldName extends POJO {
 	 */
 	public void sub_setMyint(final int myint) {
 		this.myint = myint;
+	}
+
+	/**
+	 * @return the subString
+	 */
+	public String getSubString() {
+		return subString;
+	}
+
+	/**
+	 * @param subString the subString to set
+	 */
+	public void setSubString(final String subString) {
+		this.subString = subString;
 	}
 }

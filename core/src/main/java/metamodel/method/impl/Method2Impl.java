@@ -21,15 +21,25 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package metamodel.field;
+package metamodel.method.impl;
+
+import metamodel.method.Method2;
 
 /**
- * Interface for array-field-definition. If a field is defined as {@code X[] field;}, then this kind of field-definition
- * is used.
+ * Implementation for method-definitions with two parameters.
+ * <p>
+ * For Methods with return type {@code void}, the type parameter RT is {@link Void}.
  *
  * @author Michael Kroll
- * @param <BASE> type of class that declares the field
- * @param <ARRTYPE> type of aggregating array, eg. Boolean[][][]
+ * @param <BASE> type of class that declares the method
+ * @param <RT> return type
+ * @param <P1> type of first parameter
+ * @param <P2> type of second parameter
  */
-public interface ArrayField<BASE, ARRTYPE> extends PluralField<BASE, ARRTYPE> {
+public class Method2Impl<BASE, RT, P1, P2> extends AbstractMethodImpl<BASE, RT> implements Method2<BASE, RT, P1, P2> {
+
+	public Method2Impl(final String name, final Class<BASE> declaringClass, final Class<?> param1Class,
+	        final Class<?> param2Class) {
+		super(name, declaringClass, param2Class);
+	}
 }

@@ -21,15 +21,28 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package metamodel.field;
+package metamodel.access.method;
+
+import java.lang.reflect.InvocationTargetException;
+
+import metamodel.method.Method2;
 
 /**
- * Interface for array-field-definition. If a field is defined as {@code X[] field;}, then this kind of field-definition
- * is used.
- *
  * @author Michael Kroll
- * @param <BASE> type of class that declares the field
- * @param <ARRTYPE> type of aggregating array, eg. Boolean[][][]
+ *
  */
-public interface ArrayField<BASE, ARRTYPE> extends PluralField<BASE, ARRTYPE> {
+public class Callable2<BASE, RT, P1, P2> {
+
+	private final BASE object;
+	private final Method2<? extends BASE, RT, P1, P2> methodDefinition;
+
+	public Callable2(final BASE object, final Method2<? extends BASE, RT, P1, P2> methodDefinition) {
+		this.object = object;
+		this.methodDefinition = methodDefinition;
+	}
+
+	public RT invoke(final P1 param1, final P2 param2) throws NoSuchMethodException, SecurityException,
+	        IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+		return MethodHelper.invoke(object, methodDefinition, param1, param2);
+	}
 }

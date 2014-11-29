@@ -21,15 +21,32 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package metamodel.field;
+package metamodel.access.method;
+
+import metamodel.access.AccessorUtil;
+import metamodel.method.Method1;
+import metamodel.method.impl.Method1Impl;
+
+import org.junit.Test;
 
 /**
- * Interface for array-field-definition. If a field is defined as {@code X[] field;}, then this kind of field-definition
- * is used.
- *
  * @author Michael Kroll
- * @param <BASE> type of class that declares the field
- * @param <ARRTYPE> type of aggregating array, eg. Boolean[][][]
+ *
  */
-public interface ArrayField<BASE, ARRTYPE> extends PluralField<BASE, ARRTYPE> {
+public class InvocationHelperTest {
+
+	public static class Target {
+		public void meth(final String text) {
+			System.out.println(text);
+		}
+	}
+
+	public static class Target_ {
+		public static Method1<Target, Void, String> meth = new Method1Impl<>("meth", Target.class, String.class);
+	}
+
+	@Test
+	public void testName() throws Exception {
+		AccessorUtil.on(new Target()).method(Target_.meth).invoke("hello world!!!");
+	}
 }

@@ -21,15 +21,21 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package metamodel.field;
+package metamodel.maven.test;
+
+import metamodel.maven.test.testobject.ClassWithMethods;
+
+import org.junit.Test;
 
 /**
- * Interface for array-field-definition. If a field is defined as {@code X[] field;}, then this kind of field-definition
- * is used.
- *
  * @author Michael Kroll
- * @param <BASE> type of class that declares the field
- * @param <ARRTYPE> type of aggregating array, eg. Boolean[][][]
  */
-public interface ArrayField<BASE, ARRTYPE> extends PluralField<BASE, ARRTYPE> {
+public class ClassWithMethodsTest {
+
+	private final ClassWithMethods object = new ClassWithMethods();
+
+	@Test
+	public void testName() throws Exception {
+		// AccessorUtil.on(object).method(ClassWithMethods_.m1).
+	}
 }

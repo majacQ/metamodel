@@ -53,7 +53,7 @@ public class POJOTestClass {
 	private Map<String, Boolean> map;
 
 	// plural types of arrays
-	private Collection<Boolean[]> collectionOfArray;
+	private Collection<boolean[]> collectionOfPrimitiveArray;
 	private List<Boolean[]> listOfArray;
 	private Set<Boolean[]> setOfArray;
 	private Map<String[], Boolean[]> mapOfArray;
@@ -105,4 +105,44 @@ public class POJOTestClass {
 	// crazy definition
 	private Map<? extends List<String[]>[], ? extends List<? extends POJOTestClass[]>[]>[] customWildcardExtendsGenericMapWithArrays;
 
+	/** This is the comment to a void method. */
+	private void voidMethod() {
+	}
+
+	/**
+	 * This is the comment to a method with result.
+	 *
+	 * @return true or false
+	 */
+	private boolean boolPrimitiveMethod() {
+		return true;
+	}
+
+	private boolean[] boolArrayPrimitiveMethod() {
+		return new boolean[0];
+	}
+
+	private Integer integerMethod() {
+		return 1;
+	}
+
+	private void methodWithPrimitiveParameter(final boolean b) {
+	}
+
+	private void methodWithPrimitiveArrayParameter(final boolean[] b) {
+	}
+
+	private void methodWithArrayParameter(final String[] s) {
+	}
+
+	private void methodWithWildcardParameter(final List<? extends POJOTestClass> list) {
+	}
+
+	private List<? extends POJOTestClass> methodWithWildcardResult() {
+		return null;
+	}
+
+	private <T extends POJOTestClass> List<T> methodWithTypedResult() {
+		return null;
+	}
 }

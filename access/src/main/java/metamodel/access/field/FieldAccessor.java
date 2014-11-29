@@ -21,15 +21,28 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package metamodel.field;
+package metamodel.access.field;
+
+import metamodel.field.AbstractField;
 
 /**
- * Interface for array-field-definition. If a field is defined as {@code X[] field;}, then this kind of field-definition
- * is used.
- *
  * @author Michael Kroll
- * @param <BASE> type of class that declares the field
- * @param <ARRTYPE> type of aggregating array, eg. Boolean[][][]
  */
-public interface ArrayField<BASE, ARRTYPE> extends PluralField<BASE, ARRTYPE> {
+public class FieldAccessor<BASE, TYPE> {
+	private final BASE object;
+	private final AbstractField<BASE, TYPE> fieldDefinition;
+
+	public FieldAccessor(final BASE object, final AbstractField<BASE, TYPE> fieldDefinition) {
+		this.object = object;
+		this.fieldDefinition = fieldDefinition;
+	}
+
+	public void set(final TYPE value) throws NoSuchFieldException, SecurityException, IllegalArgumentException,
+	        IllegalAccessException {
+		FieldHelper.set(object, fieldDefinition, value);
+	}
+
+	public TYPE get() throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
+		return FieldHelper.get(object, fieldDefinition);
+	}
 }

@@ -32,12 +32,17 @@ import japa.parser.ast.body.BodyDeclaration;
 import japa.parser.ast.body.ClassOrInterfaceDeclaration;
 import japa.parser.ast.body.EnumDeclaration;
 import japa.parser.ast.body.FieldDeclaration;
+import japa.parser.ast.body.MethodDeclaration;
+import japa.parser.ast.body.Parameter;
 import japa.parser.ast.body.TypeDeclaration;
 import japa.parser.ast.body.VariableDeclarator;
+import japa.parser.ast.comments.Comment;
 import japa.parser.ast.type.ClassOrInterfaceType;
 import japa.parser.ast.type.PrimitiveType;
+import japa.parser.ast.type.PrimitiveType.Primitive;
 import japa.parser.ast.type.ReferenceType;
 import japa.parser.ast.type.Type;
+import japa.parser.ast.type.VoidType;
 import japa.parser.ast.type.WildcardType;
 
 import java.io.File;
@@ -66,6 +71,8 @@ import metamodel.generator.converter.FieldConverter;
 import metamodel.generator.converter.FieldConverter.FieldDefinition;
 import metamodel.generator.converter.MapConverter;
 import metamodel.generator.converter.ObjectConverter;
+import metamodel.method.Method0;
+import metamodel.method.impl.Method0Impl;
 
 import com.sun.codemodel.ClassType;
 import com.sun.codemodel.JClass;
@@ -106,10 +113,16 @@ public class ModelFromSourceBuilder {
 		final JCodeModel codeModel = new JCodeModel();
 		// 1. build code model for all classes, excluding "extends"-definitions (they are added in a later step)
 		for (final File sourceFile : sourceFiles) {
+			// parse the file
+			final CompilationUnit cu;
 			try (FileInputStream in = new FileInputStream(sourceFile)) {
-
-				// parse the file
-				final CompilationUnit cu = JavaParser.parse(in);
+				cu = JavaParser.parse(in);
+			} catch (final IOException | ParseException | RuntimeException e) {
+				System.err.println("unable to read source file " + sourceFile + ": " + e.getMessage());
+				continue;
+			}
+			// write file
+			try {
 				for (final TypeDeclaration type : nullSafe(cu.getTypes())) {
 					if (type instanceof ClassOrInterfaceDeclaration
 					        || type instanceof EnumDeclaration) {
@@ -121,12 +134,9 @@ public class ModelFromSourceBuilder {
 						defineClass(codeModel, classCodeModel, baseType, cu, type, definedClasses, classesToExtend);
 					}
 				}
-			} catch (final IOException | ParseException e) {
-				// exception on reader side
-				System.err.println("unable to read source file " + sourceFile + ": " + e.getMessage());
-			} catch (final JClassAlreadyExistsException e) {
-				// exception on writer side
-				throw new RuntimeException(e);
+			} catch (final JClassAlreadyExistsException | RuntimeException e) {
+				System.err.println("unable to write meta class file for source file " + sourceFile + ": "
+				        + e.getMessage());
 			}
 		}
 
@@ -205,12 +215,9 @@ public class ModelFromSourceBuilder {
 		String result;
 		if (type instanceof ClassOrInterfaceType) {
 			result = ((ClassOrInterfaceType) type).getName();
-		} else if (type instanceof ClassOrInterfaceDeclaration) {
-			result = ((ClassOrInterfaceDeclaration) type).getName();
-		} else if (type instanceof EnumDeclaration) {
-			result = ((EnumDeclaration) type).getName();
+		} else if (type instanceof TypeDeclaration) {
+			result = ((TypeDeclaration) type).getName();
 		} else {
-			// FIXME fails for ???
 			throw new IllegalArgumentException("unknown starting type " + type.getClass().getName()
 			        + " found while building full type name for " + type);
 		}
@@ -252,6 +259,7 @@ public class ModelFromSourceBuilder {
 		        .param("value", this.getClass().getName())
 		        .param("date", new Date().toString());
 
+		// first generate fields for fields, so field names are equal to those in original class
 		for (final BodyDeclaration member : nullSafe(classType.getMembers())) {
 			if (member instanceof FieldDeclaration) {
 				final FieldDeclaration field = (FieldDeclaration) member;
@@ -259,6 +267,16 @@ public class ModelFromSourceBuilder {
 					continue;
 				}
 				addField(codeModel, classCodeModel, baseType, cu, classType, field);
+			}
+		}
+		// now generate fields for methods, with automatic suffix for already present fields
+		for (final BodyDeclaration member : nullSafe(classType.getMembers())) {
+			if (member instanceof MethodDeclaration) {
+				final MethodDeclaration method = (MethodDeclaration) member;
+				if (Modifier.isStatic(method.getModifiers())) {
+					continue;
+				}
+				addMethod(codeModel, classCodeModel, baseType, cu, classType, method);
 			}
 		}
 
@@ -297,7 +315,7 @@ public class ModelFromSourceBuilder {
 	private void addField(final JCodeModel codeModel, final JDefinedClass classCodeModel, final JClass baseType,
 	        final CompilationUnit cu, final TypeDeclaration classType, final FieldDeclaration field) {
 		final Type fieldType = field.getType();
-		final JClass convertedType = convertType(codeModel, cu, fieldType);
+		final JClass convertedType = convertType(codeModel, cu, fieldType, true);
 
 		for (final VariableDeclarator variable : nullSafe(field.getVariables())) {
 			final JClass fieldClazz;
@@ -309,12 +327,7 @@ public class ModelFromSourceBuilder {
 				        .arg(variable.getId().getName()).arg(baseType.dotclass());
 			} else if (convertedType.isArray()) {
 				final JClass rawLLclazz = codeModel.ref(ArrayField.class);
-				JClass collectionElementType = convertedType.elementType().boxify();
-				while (collectionElementType.isArray()) {
-					// find base type. eg. Boolean[][][][] --> Boolean
-					collectionElementType = collectionElementType.elementType().boxify();
-				}
-				fieldClazz = rawLLclazz.narrow(baseType, convertedType, collectionElementType);
+				fieldClazz = rawLLclazz.narrow(baseType, convertedType);
 				fieldInit = JExpr._new(codeModel.ref(ArrayFieldImpl.class).narrow(FieldConverter.DIAMOND))
 				        .arg(variable.getId().getName()).arg(baseType.dotclass());
 			} else {
@@ -335,11 +348,100 @@ public class ModelFromSourceBuilder {
 			        variable.getId().getName());
 			f.init(fieldInit);
 			if (field.getComment() != null) {
-				f.javadoc().add(extractOriginalJavadoc(field));
+				f.javadoc().add(extractOriginalJavadoc(field.getComment()));
 				f.javadoc().add("\n\n");
 			}
 			f.javadoc().add("@see " + classType.getName() + "#" + variable.getId().getName());
 		}
+	}
+
+	/**
+	 * Add method-definition to metamodel.
+	 *
+	 * @param codeModel JCodeModel
+	 * @param classCodeModel class-definition to fill
+	 * @param cu
+	 * @param classType
+	 * @param method real-world-method
+	 */
+	private void addMethod(final JCodeModel codeModel, final JDefinedClass classCodeModel, final JClass baseType,
+	        final CompilationUnit cu, final TypeDeclaration classType, final MethodDeclaration method) {
+		final Type returnType = method.getType();
+		final JClass convertedReturnType = convertType(codeModel, cu, returnType, true);
+
+		final Collection<Parameter> parameters = nullSafe(method.getParameters());
+		final List<JClass> typeArguments = new ArrayList<>();
+
+		final String methodDefinitionName = Method0.class.getName().replace("0", String.valueOf(parameters.size()));
+		final String methodDefinitionImplName = Method0Impl.class.getName().replace("0",
+		        String.valueOf(parameters.size()));
+
+		typeArguments.add(baseType);
+		typeArguments.add(convertedReturnType);
+
+		for (final Parameter parameter : parameters) {
+			final JClass convertedParameterType = convertType(codeModel, cu, parameter.getType(), true);
+			typeArguments.add(convertedParameterType);
+		}
+
+		final String uniqueFieldName = getUniqueFieldname(classCodeModel, method, parameters);
+		final JFieldVar f = classCodeModel.field(JMod.PUBLIC | JMod.STATIC | JMod.FINAL,
+		        codeModel.ref(methodDefinitionName).narrow(typeArguments), uniqueFieldName);
+		final JInvocation fieldInit = JExpr
+		        ._new(codeModel.ref(methodDefinitionImplName).narrow(FieldConverter.DIAMOND))
+		        .arg(method.getName()).arg(baseType.dotclass());
+		for (final Parameter parameter : parameters) {
+			final JClass typeClass = getTypeClass(codeModel, cu, parameter.getType());
+			fieldInit.arg(typeClass.dotclass());
+		}
+		f.init(fieldInit);
+		f.javadoc().add("@see " + classType.getName() + "#" + method.getName() +
+		        "(" + extractTypesForJavaDoc(parameters) + ")");
+	}
+
+	/**
+	 * @param classCodeModel
+	 * @param method
+	 * @param parameters
+	 * @return
+	 */
+	private String getUniqueFieldname(final JDefinedClass classCodeModel, final MethodDeclaration method,
+            final Collection<Parameter> parameters) {
+		// 1st try: method name
+	    final String uniqueFieldName = method.getName();
+		if (classCodeModel.fields().get(uniqueFieldName) == null) {
+			return uniqueFieldName;
+		}
+		// 2nd try: method name + _ + parameter count
+		final String uniqueFieldNameWithParamCount = uniqueFieldName + "_" + parameters.size();
+		if (classCodeModel.fields().get(uniqueFieldNameWithParamCount) == null) {
+			return uniqueFieldNameWithParamCount;
+		}
+		// 3rd try: method name + _ + parameter count + _ + counter
+		String uniqueFieldNameWithParamCountAndCounter = uniqueFieldNameWithParamCount;
+		int counter = 2;
+		while (true) {
+			uniqueFieldNameWithParamCountAndCounter = uniqueFieldNameWithParamCount + "_" + counter;
+			if (classCodeModel.fields().get(uniqueFieldNameWithParamCountAndCounter) == null) {
+				return uniqueFieldNameWithParamCountAndCounter;
+			}
+			counter++;
+		}
+	}
+
+	/**
+	 * @param parameters Collection<Parameter>
+	 * @return Type [, Type[, Type ...]]
+	 */
+	private String extractTypesForJavaDoc(final Collection<Parameter> parameters) {
+		final StringBuilder sb = new StringBuilder();
+		for (final Parameter parameter : parameters) {
+			if (sb.length() > 0) {
+				sb.append(", ");
+			}
+			sb.append(parameter.getType().toString());
+		}
+		return sb.toString();
 	}
 
 	/**
@@ -359,13 +461,13 @@ public class ModelFromSourceBuilder {
 	}
 
 	/**
-	 * Extracts javadoc from a field declaration.
+	 * Extracts javadoc from a comment declaration.
 	 *
-	 * @param field the field
+	 * @param comment the comment
 	 * @return the original javadoc
 	 */
-	private String extractOriginalJavadoc(final FieldDeclaration field) {
-		final String originalContent = field.getComment().getContent();
+	private String extractOriginalJavadoc(final Comment comment) {
+		final String originalContent = comment.getContent();
 		// remove starting '* ' from every line
 		final String processedContent = originalContent.replaceAll("\n[\t ]*\\*", "\n");
 		return processedContent;
@@ -399,6 +501,29 @@ public class ModelFromSourceBuilder {
 		return codeModel.ref(resolveTypeName(cu, typeName));
 	}
 
+	private JClass getTypeClass(final JCodeModel codeModel, final CompilationUnit cu, final Type possibleGenericType) {
+		if (possibleGenericType instanceof PrimitiveType) {
+			// primitives are written as eg. int.class
+			final Primitive primitive = ((PrimitiveType) possibleGenericType).getType();
+			return codeModel.ref(primitive.name().toLowerCase());
+		} else if (possibleGenericType instanceof ReferenceType) {
+			final ReferenceType type = (ReferenceType) possibleGenericType;
+			// boolean[], String[], Boolean[][][], Collection<String>[], ...
+			JClass elementType = getTypeClass(codeModel, cu, type.getType());
+			for (int i = 0; i < type.getArrayCount(); i++) {
+				// add as much [] as needed
+				elementType = elementType.array();
+			}
+			return elementType;
+		} else if (possibleGenericType instanceof ClassOrInterfaceType) {
+			final ClassOrInterfaceType type = (ClassOrInterfaceType) possibleGenericType;
+			final JClass baseType = findType(codeModel, cu, type.getName());
+			return baseType;
+		}
+		// should not get here
+		throw new IllegalArgumentException("cannot determine class of " + possibleGenericType.toString());
+	}
+
 	/**
 	 * Convert a {@link Type} to {@link JClass}. This includes generic type information.
 	 *
@@ -406,19 +531,26 @@ public class ModelFromSourceBuilder {
 	 * @param possibleGenericType type to convert
 	 * @return converted type
 	 */
-	private JClass convertType(final JCodeModel codeModel, final CompilationUnit cu, final Type possibleGenericType) {
-		if (possibleGenericType instanceof PrimitiveType) {
+	private JClass convertType(final JCodeModel codeModel, final CompilationUnit cu, final Type possibleGenericType,
+	        final boolean boxify) {
+		if (possibleGenericType instanceof VoidType) {
+			return codeModel.VOID.boxify();
+		} else if (possibleGenericType instanceof PrimitiveType) {
 			// int, boolean, short, ...
 			final PrimitiveType type = (PrimitiveType) possibleGenericType;
-			return JType.parse(codeModel, type.getType().toString().toLowerCase()).boxify();
+			if (boxify) {
+				return JType.parse(codeModel, type.getType().toString().toLowerCase()).boxify();
+			} else {
+				return codeModel.ref(type.getType().toString().toLowerCase());
+			}
 		} else if (possibleGenericType instanceof ReferenceType) {
 			final ReferenceType type = (ReferenceType) possibleGenericType;
 			if (type.getArrayCount() == 0) {
 				// String, Boolean, Collection<String>, ...
-				return convertType(codeModel, cu, type.getType());
+				return convertType(codeModel, cu, type.getType(), true);
 			} else {
 				// String[], Boolean[][][], Collection<String>[], ...
-				JClass elementType = convertType(codeModel, cu, type.getType());
+				JClass elementType = convertType(codeModel, cu, type.getType(), false);
 				for (int i = 0; i < type.getArrayCount(); i++) {
 					// add as much [] as needed
 					elementType = elementType.array();
@@ -430,7 +562,7 @@ public class ModelFromSourceBuilder {
 			final ReferenceType extend = wildcardType.getExtends();
 			if (extend != null) {
 				// List<? extends Something>, ...
-				final JClass upperBound = convertType(codeModel, cu, extend);
+				final JClass upperBound = convertType(codeModel, cu, extend, true);
 				return upperBound.wildcard();
 			}
 			// List<?>, MyClass<?>, ...
@@ -446,7 +578,7 @@ public class ModelFromSourceBuilder {
 				final JClass[] convertedTypeArgs = new JClass[type.getTypeArgs().size()];
 				for (int i = 0; i < type.getTypeArgs().size(); i++) {
 					final Type typeArg = type.getTypeArgs().get(i);
-					convertedTypeArgs[i] = convertType(codeModel, cu, typeArg);
+					convertedTypeArgs[i] = convertType(codeModel, cu, typeArg, true);
 				}
 				return baseType.narrow(convertedTypeArgs);
 			}

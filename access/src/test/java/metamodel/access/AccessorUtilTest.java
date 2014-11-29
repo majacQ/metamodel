@@ -47,11 +47,12 @@ public class AccessorUtilTest {
 		pojo.setMyint(42);
 		pojo.setMyInteger(23);
 
-		assertEquals(new Integer(42), AccessorUtil.get(pojo, POJO_.myint));
-		assertEquals(new Integer(23), AccessorUtil.get(pojo, POJO_.myInteger));
 
-		AccessorUtil.set(pojo, POJO_.myint, 13);
-		AccessorUtil.set(pojo, POJO_.myInteger, 7);
+		assertEquals(new Integer(42), AccessorUtil.on(pojo).field(POJO_.myint).get());
+		assertEquals(new Integer(23), AccessorUtil.on(pojo).field(POJO_.myInteger).get());
+
+		AccessorUtil.on(pojo).field(POJO_.myint).set(13);
+		AccessorUtil.on(pojo).field(POJO_.myInteger).set(7);
 
 		assertEquals(13, pojo.getMyint());
 		assertEquals(Integer.valueOf(7), pojo.getMyInteger());
@@ -62,9 +63,10 @@ public class AccessorUtilTest {
 		final POJO pojo = new POJO();
 		pojo.setWildcardList(Arrays.asList(new String("Charly!"), new Integer(42)));
 
-		assertEquals(Arrays.asList(new String("Charly!"), new Integer(42)), AccessorUtil.get(pojo, POJO_.wildcardList));
+		assertEquals(Arrays.asList(new String("Charly!"), new Integer(42)),
+		        AccessorUtil.on(pojo).field(POJO_.wildcardList).get());
 
-		AccessorUtil.set(pojo, POJO_.wildcardList, Arrays.asList(new String("Nope!"), new Integer(7)));
+		AccessorUtil.on(pojo).field(POJO_.wildcardList).set(Arrays.asList(new String("Nope!"), new Integer(7)));
 
 		assertEquals(Arrays.asList(new String("Nope!"), new Integer(7)), pojo.getWildcardList());
 	}
@@ -74,16 +76,16 @@ public class AccessorUtilTest {
 		final SubClassWithSameFieldName pojo = new SubClassWithSameFieldName();
 
 		pojo.setMyInteger(42);
-		assertEquals(new Integer(42), AccessorUtil.get(pojo, POJO_.myInteger));
+		assertEquals(new Integer(42), AccessorUtil.on(pojo).field(SubClassWithSameFieldName_.myInteger).get());
 
-		AccessorUtil.set(pojo, POJO_.myInteger, 7);
+		AccessorUtil.on(pojo).field(POJO_.myInteger).set(7);
 		assertEquals(Integer.valueOf(7), pojo.getMyInteger());
 
-		AccessorUtil.set(pojo, SubClassWithSameFieldName_.myInteger, 13);
+		AccessorUtil.on(pojo).field(SubClassWithSameFieldName_.myInteger).set(13);
 		assertEquals(Integer.valueOf(13), pojo.getMyInteger());
 
 		pojo.setMyInteger(42);
-		assertEquals(new Integer(42), AccessorUtil.get(pojo, SubClassWithSameFieldName_.myInteger));
+		assertEquals(new Integer(42), AccessorUtil.on(pojo).field(SubClassWithSameFieldName_.myInteger).get());
 	}
 
 	@Test
@@ -92,12 +94,50 @@ public class AccessorUtilTest {
 
 		pojo.setMyint(42);
 		pojo.sub_setMyint(23);
-		assertEquals(new Integer(42), AccessorUtil.get(pojo, POJO_.myint));
-		assertEquals(new Integer(23), AccessorUtil.get(pojo, SubClassWithSameFieldName_.myint));
+		assertEquals(new Integer(42), AccessorUtil.on(pojo).field(POJO_.myint).get());
+		assertEquals(new Integer(23), AccessorUtil.on(pojo).field(SubClassWithSameFieldName_.myint).get());
 
-		AccessorUtil.set(pojo, POJO_.myint, 7);
-		AccessorUtil.set(pojo, SubClassWithSameFieldName_.myint, 13);
+		AccessorUtil.on(pojo).field(POJO_.myint).set(7);
+		AccessorUtil.on(pojo).field(SubClassWithSameFieldName_.myint).set(13);
 		assertEquals(7, pojo.getMyint());
 		assertEquals(13, pojo.sub_getMyint());
+	}
+
+	@Test
+	public void testFieldAccessInClassHierarchy() throws Exception {
+		final SubClassWithSameFieldName sub = new SubClassWithSameFieldName();
+		final POJO pojo = new POJO();
+
+		AccessorUtil.on(pojo).field(POJO_.myInteger).set(5);
+		// implicit downcast should not be allowed:
+		// AccessorUtil.on(pojo).field(SubClassWithSameFieldName_.subString).set("hello world");
+
+		AccessorUtil.on(sub).field(POJO_.myInteger).set(5);
+		AccessorUtil.on(sub).field(SubClassWithSameFieldName_.subString).set("hello world");
+	}
+
+	@Test
+	public void testMethodAccessInClassHierarchy() throws Exception {
+		final SubClassWithSameFieldName sub = new SubClassWithSameFieldName();
+		final POJO pojo = new POJO();
+
+		AccessorUtil.on(pojo).method(POJO_.setMyint).invoke(5);
+		// implicit downcast should not be allowed:
+		// AccessorUtil.on(pojo).method(SubClassWithSameFieldName_.sub_setMyint).invoke(5);
+
+		AccessorUtil.on(sub).method(POJO_.setMyint).invoke(5);
+		AccessorUtil.on(sub).method(SubClassWithSameFieldName_.sub_setMyint).invoke(5);
+	}
+
+	@Test
+	public void testMethodWithObjectArray() throws Exception {
+		final POJO pojo = new POJO();
+		AccessorUtil.on(pojo).method(POJO_.methodWithObjectArray).invoke(new Long[] { 5L, 7L });
+	}
+
+	@Test
+	public void testMethodWithPrimitiveArray() throws Exception {
+		final POJO pojo = new POJO();
+		AccessorUtil.on(pojo).method(POJO_.methodWithPrimitiveArray).invoke(new int[] { 5, 7 });
 	}
 }
