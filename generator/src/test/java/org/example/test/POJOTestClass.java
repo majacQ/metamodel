@@ -53,7 +53,7 @@ public class POJOTestClass {
 	private Map<String, Boolean> map;
 
 	// plural types of arrays
-	private Collection<Boolean[]> collectionOfArray;
+	private Collection<boolean[]> collectionOfPrimitiveArray;
 	private List<Boolean[]> listOfArray;
 	private Set<Boolean[]> setOfArray;
 	private Map<String[], Boolean[]> mapOfArray;
@@ -133,5 +133,16 @@ public class POJOTestClass {
 	}
 
 	private void methodWithArrayParameter(final String[] s) {
+	}
+
+	private void methodWithWildcardParameter(final List<? extends POJOTestClass> list) {
+	}
+
+	private List<? extends POJOTestClass> methodWithWildcardResult() {
+		return null;
+	}
+
+	private <T extends POJOTestClass> List<T> methodWithTypedResult() {
+		return null;
 	}
 }
