@@ -52,11 +52,11 @@ import metamodel.method.Method15;
 public class Callable15<BASE, RT, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13, P14, P15> {
 
 	private final BASE object;
-	private final Method15<? extends BASE, RT, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13, P14, P15> methodDefinition;
+	private final Method15<? super BASE, RT, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13, P14, P15> methodDefinition;
 
 	public Callable15(
 	        final BASE object,
-	        final Method15<? extends BASE, RT, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13, P14, P15> methodDefinition) {
+	        final Method15<? super BASE, RT, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13, P14, P15> methodDefinition) {
 		this.object = object;
 		this.methodDefinition = methodDefinition;
 	}

@@ -29,13 +29,18 @@ import java.lang.reflect.Method;
 import metamodel.method.AbstractMethod;
 
 /**
- * @author Michael Kroll
+ * Invokes defined methods on objects. Used by Callables.
  *
+ * @author Michael Kroll
  */
 public class MethodHelper {
 
+	/** Hide Utility Constructor. */
+	private MethodHelper() {
+	}
+
 	/**
-	 * Invokes a defined method on an onject instance.
+	 * Invokes a defined method on an object instance.
 	 *
 	 * @param object Instance with method to call
 	 * @param methodDefinition metamodel method definition
@@ -47,7 +52,7 @@ public class MethodHelper {
 	 * @throws InvocationTargetException
 	 */
 	@SuppressWarnings("unchecked")
-	protected static <BASE, RT> RT invoke(final BASE object, final AbstractMethod<? extends BASE, RT> methodDefinition,
+	protected static <BASE, RT> RT invoke(final BASE object, final AbstractMethod<? super BASE, RT> methodDefinition,
 	        final Object... params) throws NoSuchMethodException, SecurityException, IllegalAccessException,
 	        IllegalArgumentException, InvocationTargetException {
 		final Method method = getAccessibleMethod(methodDefinition);

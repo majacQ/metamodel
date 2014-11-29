@@ -23,13 +23,22 @@
  */
 package metamodel.access;
 
-
 /**
- * Provides access to fields-values of objects using reflection and metamodel-description of the class.
+ * Factory for {@link ObjectAccessor}.
  *
  * @author Michael Kroll
+ * @see #on(Object)
+ * @see ObjectAccessor
  */
-public class AccessorUtil {
+public class Accessor {
+
+	/**
+	 * Create new Object Accessor for object.
+	 *
+	 * @param object
+	 * @return
+	 * @see ObjectAccessor
+	 */
 	public static <BASE> ObjectAccessor<BASE> on(final BASE object) {
 		return new ObjectAccessor<>(object);
 	}

@@ -60,99 +60,123 @@ import metamodel.method.Method7;
 import metamodel.method.Method8;
 import metamodel.method.Method9;
 
+/**
+ * Allows access of fields and methods of object instances, even if they are private. Use it as follows:
+ *
+ * <pre>
+ * // field manipulation
+ * ObjectAccessor.on(targetObject).field(TargetObject_.field).set(42);
+ * int fortyTwo = ObjectAccessor.on(targetObject).field(TargetObject_.field).get();
+ * 
+ * // method invocation
+ * ObjectAccessor.on(targetObject).method(TargetObject_.aVoidMethod).invoke(&quot;Hello World!&quot;);
+ * int fortyTwo = ObjectAccessor.on(targetObject).method(TargetObject_.getField).invoke();
+ * 
+ * // this is an example class that the above ObjectAccessor example uses
+ * class TargetObject {
+ * 	private int field;
+ * 
+ * 	private int getField() {
+ * 		return field;
+ * 	}
+ * }
+ * </pre>
+ *
+ * @author Michael Kroll
+ * @param <BASE> type of object to be accessed
+ */
 public class ObjectAccessor<BASE> {
 
+	/** object to be accessed. */
 	private final BASE object;
 
 	protected ObjectAccessor(final BASE object) {
 		this.object = object;
 	}
 
-	public <TYPE> FieldAccessor<BASE, TYPE> field(
-	        final AbstractField<? super BASE, TYPE> fieldDefinition) {
-		return new FieldAccessor(object, fieldDefinition);
+	public <TYPE> FieldAccessor<BASE, TYPE> field(final AbstractField<? super BASE, TYPE> fieldDefinition) {
+		return new FieldAccessor<>(object, fieldDefinition);
 	}
 
 	public <RT> Callable0<BASE, RT> method(final Method0<? super BASE, RT> methodDefinition) {
-		return new Callable0(object, methodDefinition);
+		return new Callable0<>(object, methodDefinition);
 	}
 
 	public <RT, P1> Callable1<BASE, RT, P1> method(final Method1<? super BASE, RT, P1> methodDefinition) {
-		return new Callable1(object, methodDefinition);
+		return new Callable1<>(object, methodDefinition);
 	}
 
-	public <RT, P1, P2> Callable2<BASE, RT, P1, P2> method(
-	        final Method2<? super BASE, RT, P1, P2> methodDefinition) {
-		return new Callable2(object, methodDefinition);
+	public <RT, P1, P2> Callable2<BASE, RT, P1, P2> method(final Method2<? super BASE, RT, P1, P2> methodDefinition) {
+		return new Callable2<>(object, methodDefinition);
 	}
 
 	public <RT, P1, P2, P3> Callable3<BASE, RT, P1, P2, P3> method(
 	        final Method3<? super BASE, RT, P1, P2, P3> methodDefinition) {
-		return new Callable3(object, methodDefinition);
+		return new Callable3<>(object, methodDefinition);
 	}
 
 	public <RT, P1, P2, P3, P4> Callable4<BASE, RT, P1, P2, P3, P4> method(
 	        final Method4<? super BASE, RT, P1, P2, P3, P4> methodDefinition) {
-		return new Callable4(object, methodDefinition);
+		return new Callable4<>(object, methodDefinition);
 	}
 
 	public <RT, P1, P2, P3, P4, P5> Callable5<BASE, RT, P1, P2, P3, P4, P5> method(
 	        final Method5<? super BASE, RT, P1, P2, P3, P4, P5> methodDefinition) {
-		return new Callable5(object, methodDefinition);
+		return new Callable5<>(object, methodDefinition);
 	}
 
 	public <RT, P1, P2, P3, P4, P5, P6> Callable6<BASE, RT, P1, P2, P3, P4, P5, P6> method(
 	        final Method6<? super BASE, RT, P1, P2, P3, P4, P5, P6> methodDefinition) {
-		return new Callable6(object, methodDefinition);
+		return new Callable6<>(object, methodDefinition);
 	}
 
 	public <RT, P1, P2, P3, P4, P5, P6, P7> Callable7<BASE, RT, P1, P2, P3, P4, P5, P6, P7> method(
 	        final Method7<? super BASE, RT, P1, P2, P3, P4, P5, P6, P7> methodDefinition) {
-		return new Callable7(object, methodDefinition);
+		return new Callable7<>(object, methodDefinition);
 	}
 
 	public <RT, P1, P2, P3, P4, P5, P6, P7, P8> Callable8<BASE, RT, P1, P2, P3, P4, P5, P6, P7, P8> method(
 	        final Method8<? super BASE, RT, P1, P2, P3, P4, P5, P6, P7, P8> methodDefinition) {
-		return new Callable8(object, methodDefinition);
+		return new Callable8<>(object, methodDefinition);
 	}
 
 	public <RT, P1, P2, P3, P4, P5, P6, P7, P8, P9> Callable9<BASE, RT, P1, P2, P3, P4, P5, P6, P7, P8, P9> method(
 	        final Method9<? super BASE, RT, P1, P2, P3, P4, P5, P6, P7, P8, P9> methodDefinition) {
-		return new Callable9(object, methodDefinition);
+		return new Callable9<>(object, methodDefinition);
 	}
 
 	public <RT, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10> Callable10<BASE, RT, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10> method(
 	        final Method10<? super BASE, RT, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10> methodDefinition) {
-		return new Callable10(object, methodDefinition);
+		return new Callable10<>(object, methodDefinition);
 	}
 
 	public <RT, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11> Callable11<BASE, RT, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11> method(
 	        final Method11<? super BASE, RT, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11> methodDefinition) {
-		return new Callable11(object, methodDefinition);
+		return new Callable11<>(object, methodDefinition);
 	}
 
 	public <RT, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12> Callable12<BASE, RT, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12> method(
 	        final Method12<? super BASE, RT, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12> methodDefinition) {
-		return new Callable12(object, methodDefinition);
+		return new Callable12<>(object, methodDefinition);
 	}
 
 	public <RT, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13> Callable13<BASE, RT, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13> method(
 	        final Method13<? super BASE, RT, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13> methodDefinition) {
-		return new Callable13(object, methodDefinition);
+		return new Callable13<>(object, methodDefinition);
 	}
 
 	public <RT, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13, P14> Callable14<BASE, RT, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13, P14> method(
 	        final Method14<? super BASE, RT, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13, P14> methodDefinition) {
-		return new Callable14(object, methodDefinition);
+		return new Callable14<>(object, methodDefinition);
 	}
 
 	public <RT, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13, P14, P15> Callable15<BASE, RT, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13, P14, P15> method(
 	        final Method15<? super BASE, RT, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13, P14, P15> methodDefinition) {
-		return new Callable15(object, methodDefinition);
+		return new Callable15<>(object, methodDefinition);
 	}
 
 	public <RT, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13, P14, P15, P16> Callable16<BASE, RT, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13, P14, P15, P16> method(
 	        final Method16<? super BASE, RT, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13, P14, P15, P16> methodDefinition) {
-		return new Callable16(object, methodDefinition);
+		return new Callable16<>(object, methodDefinition);
 	}
 }

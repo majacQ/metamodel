@@ -384,7 +384,7 @@ public class ModelFromSourceBuilder {
 			typeArguments.add(convertedParameterType);
 		}
 
-		final String uniqueFieldName = getUniqueFieldname(classCodeModel, method, parameters);
+		final String uniqueFieldName = getUniqueFieldname(classCodeModel, method);
 		final JFieldVar f = classCodeModel.field(JMod.PUBLIC | JMod.STATIC | JMod.FINAL,
 		        codeModel.ref(methodDefinitionName).narrow(typeArguments), uniqueFieldName);
 		final JInvocation fieldInit = JExpr
@@ -395,18 +395,19 @@ public class ModelFromSourceBuilder {
 			fieldInit.arg(typeClass.dotclass());
 		}
 		f.init(fieldInit);
-		f.javadoc().add("@see " + classType.getName() + "#" + method.getName() +
-		        "(" + extractTypesForJavaDoc(parameters) + ")");
+		f.javadoc().add("@see " + classType.getName() + "#" + getReferenceForJavadoc(method));
 	}
 
 	/**
-	 * @param classCodeModel
-	 * @param method
-	 * @param parameters
-	 * @return
+	 * Calculates a unique field name, starting from the original name of a method. Adds number of parameters and
+	 * counter to field name if neccessary to obtain a unique field name.
+	 *
+	 * @param classCodeModel model of the defined class, containing already existent fields
+	 * @param method MethodDeclaration
+	 * @return unique field name
 	 */
-	private String getUniqueFieldname(final JDefinedClass classCodeModel, final MethodDeclaration method,
-            final Collection<Parameter> parameters) {
+	private String getUniqueFieldname(final JDefinedClass classCodeModel, final MethodDeclaration method) {
+		final Collection<Parameter> parameters = nullSafe(method.getParameters());
 		// 1st try: method name
 	    final String uniqueFieldName = method.getName();
 		if (classCodeModel.fields().get(uniqueFieldName) == null) {
@@ -430,22 +431,30 @@ public class ModelFromSourceBuilder {
 	}
 
 	/**
+	 * Build method Javadoc reference in the form {@code methodName(ParamType1, ParamType2, ...)}
+	 *
 	 * @param parameters Collection<Parameter>
-	 * @return Type [, Type[, Type ...]]
+	 * @return JavaDoc reference to method declaration
 	 */
-	private String extractTypesForJavaDoc(final Collection<Parameter> parameters) {
+	private String getReferenceForJavadoc(final MethodDeclaration method) {
 		final StringBuilder sb = new StringBuilder();
-		for (final Parameter parameter : parameters) {
-			if (sb.length() > 0) {
+		sb.append(method.getName());
+		sb.append("(");
+		boolean isFirst = true;
+		for (final Parameter parameter : nullSafe(method.getParameters())) {
+			if (isFirst) {
+				isFirst = false;
+			} else {
 				sb.append(", ");
 			}
 			sb.append(parameter.getType().toString());
 		}
+		sb.append(")");
 		return sb.toString();
 	}
 
 	/**
-	 * Finds best-suiting FieldCoverter for given type.
+	 * Finds first matching FieldCoverter for given type.
 	 *
 	 * @param codeModel JCodeModel instance
 	 * @param convertedType type to search a FieldConverter for

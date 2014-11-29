@@ -28,9 +28,15 @@ import java.lang.reflect.Field;
 import metamodel.field.AbstractField;
 
 /**
+ * Gets/Sets defined fields on objects. Used by FieldAccessor.
+ *
  * @author Michael Kroll
  */
 public class FieldHelper {
+
+	/** Hide Utility Constructor. */
+	private FieldHelper() {
+	}
 
 	protected static <BASE, TYPE> void set(final BASE object,
 	        final AbstractField<? super BASE, TYPE> fieldDefinition,
