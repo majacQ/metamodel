@@ -6,7 +6,7 @@ This tooling enables you to generate meta model classes of standard POJOs. These
 What for?
 =========
 
-One word: testing. There are certain circumstances, where you want to change/read values of objects that simply do not have any setters/getters for these values. For Example:
+One word: testing. There are certain circumstances, where you want to change/read values of objects that simply do not have any setters/getters for these values. For example:
 
 - Manually set fields that are normally set by a dependency-injection framework, but you don't want to start the whole container just for testing one small class.
 - Checking internal state of objects without the need to add getters only for testing. Beware: this type of access points at bad code/design.
@@ -35,5 +35,83 @@ Content
 - A generator that builds metamodels from java-source-files (using <https://code.google.com/p/javaparser/> for reading source-files and <https://codemodel.java.net/> for writing the metamodels)
 - A maven-build-plugin for seamless integration in, well, maven builds :)
 - Utilities that you may use along the generated metamodel to read/write values of fields etc. 
+
+Usage
+======
+
+The easiest way to access your classes via a metamodel without having to write the metamodel code yourself is to let a generator do the work for you. This can be done with the maven-plugin which is part of this project: 
+
+- add a dependency to the maven-plugin
+```xml
+<dependency>
+	<groupId>metamodel</groupId>
+	<artifactId>metamodel-maven-plugin</artifactId>
+	<version>1.0.0</version>
+</dependency>
+```
+- use plugin during build
+```xml
+<build>
+	<plugins>
+		<plugin>
+			<groupId>metamodel</groupId>
+			<artifactId>metamodel-maven-plugin</artifactId>
+			<version>1.0.0</version>
+			<executions>
+				<execution>
+					<id>metamodel generation</id>
+					<goals>
+						<goal>generate-metamodel</goal>
+					</goals>
+				</execution>
+			</executions>
+		</plugin>
+	</plugins>
+</build>
+```
+- add generated source files to be compiled in compile phase 
+```xml
+<build>
+	<plugins>
+		<plugin>
+			<groupId>org.codehaus.mojo</groupId>
+			<artifactId>build-helper-maven-plugin</artifactId>
+			<version>1.9.1</version>
+			<executions>
+				<execution>
+					<id>generate-sources</id>
+					<phase>generate-sources</phase>
+					<goals>
+						<goal>add-source</goal>
+					</goals>
+					<configuration>
+						<sources>
+						<source>${project.build.directory}/generated-sources/pojo-metamodel</source>
+						</sources>
+					</configuration>
+				</execution>
+			</executions>
+		</plugin>
+	</plugins>
+</build>
+```
+
+Now you can use the metamodel classes to access your objects. Use the accessor-library to accomplish this with readable one-liners:
+- add dependency to accessor-library to your build
+```xml
+<dependency>
+	<groupId>metamodel</groupId>
+	<artifactId>accessor</artifactId>
+	<version>1.0.0</version>
+</dependency>
+```
+- start writing code like the following:
+```java
+Example example = new Example();
+Accessor.on(example).field(Example_.value).set(13);
+int val = Accessor.on(example).field(Example_.value).get();
+
+Accessor.on(example).method(Example_.innerMethod).invoke("my value");
+```
 
 That's it, have Fun!
