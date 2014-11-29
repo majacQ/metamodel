@@ -23,9 +23,6 @@
  */
 package metamodel.access;
 
-import java.lang.reflect.Field;
-
-import metamodel.field.AbstractField;
 
 /**
  * Provides access to fields-values of objects using reflection and metamodel-description of the class.
@@ -33,40 +30,6 @@ import metamodel.field.AbstractField;
  * @author Michael Kroll
  */
 public class AccessorUtil {
-
-	public static <BASE, TYPE> void set(final BASE object,
-	        final AbstractField<BASE, TYPE> fieldDefinition,
-	        final TYPE value) throws NoSuchFieldException, SecurityException, IllegalArgumentException,
-	        IllegalAccessException {
-		final Field field = getAccessibleField(fieldDefinition);
-		field.set(object, value);
-	}
-
-	@SuppressWarnings("unchecked")
-	public static <BASE, TYPE> TYPE get(final BASE object, final AbstractField<BASE, TYPE> fieldDefinition)
-	        throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
-		final Field field = getAccessibleField(fieldDefinition);
-		return (TYPE) field.get(object);
-	}
-
-	/**
-	 * Get Field of Class as defined by metamodel field definition.
-	 *
-	 * @param fieldDefinition metamodel field definition
-	 * @return Field
-	 * @throws NoSuchFieldException
-	 * @throws SecurityException
-	 */
-	private static Field getAccessibleField(final AbstractField<?, ?> fieldDefinition)
-	        throws NoSuchFieldException, SecurityException {
-		final String fieldName = fieldDefinition.getName();
-		final Field field = fieldDefinition.getDeclaringClass().getDeclaredField(fieldName);
-		if (!field.isAccessible()) {
-			field.setAccessible(true);
-		}
-		return field;
-	}
-
 	public static <BASE> ObjectAccessor<BASE> on(final BASE object) {
 		return new ObjectAccessor<>(object);
 	}

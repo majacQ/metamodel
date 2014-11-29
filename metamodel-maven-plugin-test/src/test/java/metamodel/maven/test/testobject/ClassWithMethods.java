@@ -50,8 +50,21 @@ public class ClassWithMethods {
 		return true;
 	}
 
+	private boolean[] boolArrayPrimitiveMethod() {
+		return new boolean[0];
+	}
+
 	private Integer integerMethod() {
 		return 1;
+	}
+
+	private void methodWithPrimitiveParameter(final boolean b) {
+	}
+
+	private void methodWithPrimitiveArrayParameter(final boolean[] b) {
+	}
+
+	private void methodWithArrayParameter(final String[] s) {
 	}
 
 	private void duplicate(final String val) {

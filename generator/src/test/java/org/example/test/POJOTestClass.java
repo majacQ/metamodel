@@ -104,4 +104,34 @@ public class POJOTestClass {
 
 	// crazy definition
 	private Map<? extends List<String[]>[], ? extends List<? extends POJOTestClass[]>[]>[] customWildcardExtendsGenericMapWithArrays;
+
+	/** This is the comment to a void method. */
+	private void voidMethod() {
+	}
+
+	/**
+	 * This is the comment to a method with result.
+	 *
+	 * @return true or false
+	 */
+	private boolean boolPrimitiveMethod() {
+		return true;
+	}
+
+	private boolean[] boolArrayPrimitiveMethod() {
+		return new boolean[0];
+	}
+
+	private Integer integerMethod() {
+		return 1;
+	}
+
+	private void methodWithPrimitiveParameter(final boolean b) {
+	}
+
+	private void methodWithPrimitiveArrayParameter(final boolean[] b) {
+	}
+
+	private void methodWithArrayParameter(final String[] s) {
+	}
 }

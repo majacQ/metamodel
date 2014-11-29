@@ -95,4 +95,10 @@ public class POJO {
 	public void setWildcardList(final List<?> wildcardList) {
 		this.wildcardList = wildcardList;
 	}
+
+	public void methodWithPrimitiveArray(final int[] params) {
+	}
+
+	public void methodWithObjectArray(final Long[] params) {
+	}
 }

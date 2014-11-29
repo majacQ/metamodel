@@ -25,24 +25,46 @@ package metamodel.access.method;
 
 import java.lang.reflect.InvocationTargetException;
 
-import metamodel.method.Method2;
+import metamodel.method.Method3;
 
 /**
- * @author Michael Kroll
+ * Call-wrapper for Method with 3 parameters.
  *
+ * @author Michael Kroll
+ * @param <BASE> type of class that declares the method
+ * @param <RT> return type
+ * @param <P1> type of first parameter
+ * @param <P2> type of second parameter
+ * @param <P3> type of third parameter
  */
-public class Callable2<BASE, RT, P1, P2> {
+public class Callable3<BASE, RT, P1, P2, P3> {
 
 	private final BASE object;
-	private final Method2<? extends BASE, RT, P1, P2> methodDefinition;
+	private final Method3<? extends BASE, RT, P1, P2, P3> methodDefinition;
 
-	public Callable2(final BASE object, final Method2<? extends BASE, RT, P1, P2> methodDefinition) {
+	public Callable3(
+	        final BASE object,
+	        final Method3<? extends BASE, RT, P1, P2, P3> methodDefinition) {
 		this.object = object;
 		this.methodDefinition = methodDefinition;
 	}
 
-	public RT invoke(final P1 param1, final P2 param2) throws NoSuchMethodException, SecurityException,
-	        IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-		return MethodHelper.invoke(object, methodDefinition, param1, param2);
+	/**
+	 * Invoke Method with given parameters.
+	 *
+	 * @param param1 first parmeter
+	 * @param param2 second parameter
+	 * @param param3 third parameter
+	 * @return result of method invocation. void-methods always return null
+	 * @throws NoSuchMethodException
+	 * @throws SecurityException
+	 * @throws IllegalAccessException
+	 * @throws IllegalArgumentException
+	 * @throws InvocationTargetException
+	 */
+	public RT invoke(final P1 param1, final P2 param2, final P3 param3)
+	        throws NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException,
+	        InvocationTargetException {
+		return MethodHelper.invoke(object, methodDefinition, param1, param2, param3);
 	}
 }

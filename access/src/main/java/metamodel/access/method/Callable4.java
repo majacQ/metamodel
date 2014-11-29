@@ -25,24 +25,48 @@ package metamodel.access.method;
 
 import java.lang.reflect.InvocationTargetException;
 
-import metamodel.method.Method2;
+import metamodel.method.Method4;
 
 /**
- * @author Michael Kroll
+ * Call-wrapper for Method with 4 parameters.
  *
+ * @author Michael Kroll
+ * @param <BASE> type of class that declares the method
+ * @param <RT> return type
+ * @param <P1> type of first parameter
+ * @param <P2> type of second parameter
+ * @param <P3> type of third parameter
+ * @param <P4> type of 4th parameter
  */
-public class Callable2<BASE, RT, P1, P2> {
+public class Callable4<BASE, RT, P1, P2, P3, P4> {
 
 	private final BASE object;
-	private final Method2<? extends BASE, RT, P1, P2> methodDefinition;
+	private final Method4<? extends BASE, RT, P1, P2, P3, P4> methodDefinition;
 
-	public Callable2(final BASE object, final Method2<? extends BASE, RT, P1, P2> methodDefinition) {
+	public Callable4(
+	        final BASE object,
+	        final Method4<? extends BASE, RT, P1, P2, P3, P4> methodDefinition) {
 		this.object = object;
 		this.methodDefinition = methodDefinition;
 	}
 
-	public RT invoke(final P1 param1, final P2 param2) throws NoSuchMethodException, SecurityException,
-	        IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-		return MethodHelper.invoke(object, methodDefinition, param1, param2);
+	/**
+	 * Invoke Method with given parameters.
+	 *
+	 * @param param1 first parmeter
+	 * @param param2 second parameter
+	 * @param param3 third parameter
+	 * @param param4 4th parameter
+	 * @return result of method invocation. void-methods always return null
+	 * @throws NoSuchMethodException
+	 * @throws SecurityException
+	 * @throws IllegalAccessException
+	 * @throws IllegalArgumentException
+	 * @throws InvocationTargetException
+	 */
+	public RT invoke(final P1 param1, final P2 param2, final P3 param3, final P4 param4)
+	        throws NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException,
+	        InvocationTargetException {
+		return MethodHelper.invoke(object, methodDefinition, param1, param2, param3, param4);
 	}
 }

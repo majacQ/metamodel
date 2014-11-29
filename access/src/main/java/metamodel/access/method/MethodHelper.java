@@ -32,7 +32,7 @@ import metamodel.method.AbstractMethod;
  * @author Michael Kroll
  *
  */
-public class InvocationHelper {
+public class MethodHelper {
 
 	/**
 	 * Invokes a defined method on an onject instance.
@@ -47,7 +47,7 @@ public class InvocationHelper {
 	 * @throws InvocationTargetException
 	 */
 	@SuppressWarnings("unchecked")
-	protected static <BASE, RT, P1> RT invoke(final BASE object, final AbstractMethod<BASE, RT> methodDefinition,
+	protected static <BASE, RT> RT invoke(final BASE object, final AbstractMethod<? extends BASE, RT> methodDefinition,
 	        final Object... params) throws NoSuchMethodException, SecurityException, IllegalAccessException,
 	        IllegalArgumentException, InvocationTargetException {
 		final Method method = getAccessibleMethod(methodDefinition);

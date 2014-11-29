@@ -21,28 +21,28 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package metamodel.access.method;
+package metamodel.access.field;
 
-import java.lang.reflect.InvocationTargetException;
-
-import metamodel.method.Method2;
+import metamodel.field.AbstractField;
 
 /**
  * @author Michael Kroll
- *
  */
-public class Callable2<BASE, RT, P1, P2> {
-
+public class FieldAccessor<BASE, TYPE> {
 	private final BASE object;
-	private final Method2<? extends BASE, RT, P1, P2> methodDefinition;
+	private final AbstractField<BASE, TYPE> fieldDefinition;
 
-	public Callable2(final BASE object, final Method2<? extends BASE, RT, P1, P2> methodDefinition) {
+	public FieldAccessor(final BASE object, final AbstractField<BASE, TYPE> fieldDefinition) {
 		this.object = object;
-		this.methodDefinition = methodDefinition;
+		this.fieldDefinition = fieldDefinition;
 	}
 
-	public RT invoke(final P1 param1, final P2 param2) throws NoSuchMethodException, SecurityException,
-	        IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-		return MethodHelper.invoke(object, methodDefinition, param1, param2);
+	public void set(final TYPE value) throws NoSuchFieldException, SecurityException, IllegalArgumentException,
+	        IllegalAccessException {
+		FieldHelper.set(object, fieldDefinition, value);
+	}
+
+	public TYPE get() throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
+		return FieldHelper.get(object, fieldDefinition);
 	}
 }

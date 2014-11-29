@@ -34,15 +34,15 @@ import metamodel.method.Method0;
 public class Callable0<BASE, RT> {
 
 	private final BASE object;
-	private final Method0<BASE, RT> methodDefinition;
+	private final Method0<? extends BASE, RT> methodDefinition;
 
-	public Callable0(final BASE object, final Method0<BASE, RT> methodDefinition) {
+	public Callable0(final BASE object, final Method0<? extends BASE, RT> methodDefinition) {
 		this.object = object;
 		this.methodDefinition = methodDefinition;
 	}
 
 	public RT invoke() throws NoSuchMethodException, SecurityException, IllegalAccessException,
 	        IllegalArgumentException, InvocationTargetException {
-		return InvocationHelper.invoke(object, methodDefinition);
+		return MethodHelper.invoke(object, methodDefinition);
 	}
 }

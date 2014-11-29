@@ -39,6 +39,7 @@ import japa.parser.ast.body.VariableDeclarator;
 import japa.parser.ast.comments.Comment;
 import japa.parser.ast.type.ClassOrInterfaceType;
 import japa.parser.ast.type.PrimitiveType;
+import japa.parser.ast.type.PrimitiveType.Primitive;
 import japa.parser.ast.type.ReferenceType;
 import japa.parser.ast.type.Type;
 import japa.parser.ast.type.VoidType;
@@ -383,11 +384,9 @@ public class ModelFromSourceBuilder {
 		typeArguments.add(baseType);
 		typeArguments.add(convertedReturnType);
 
-		final List<JClass> convertedParameterClasses = new ArrayList<>();
 		for (final Parameter parameter : parameters) {
 			final JClass convertedParameterType = convertType(codeModel, cu, parameter.getType());
 			typeArguments.add(convertedParameterType);
-			convertedParameterClasses.add(convertedParameterType);
 		}
 
 		final String uniqueFieldName = getUniqueFieldname(classCodeModel, method, parameters);
@@ -396,8 +395,9 @@ public class ModelFromSourceBuilder {
 		final JInvocation fieldInit = JExpr
 		        ._new(codeModel.ref(methodDefinitionImplName).narrow(FieldConverter.DIAMOND))
 		        .arg(method.getName()).arg(baseType.dotclass());
-		for (final JClass convertedParameterClass : convertedParameterClasses) {
-			fieldInit.arg(convertedParameterClass.dotclass());
+		for (final Parameter parameter : parameters) {
+			final JClass typeClass = getTypeClass(codeModel, cu, parameter.getType());
+			fieldInit.arg(typeClass.dotclass());
 		}
 		f.init(fieldInit);
 		f.javadoc().add("@see " + classType.getName() + "#" + method.getName() +
@@ -504,6 +504,29 @@ public class ModelFromSourceBuilder {
 	 */
 	private JClass findType(final JCodeModel codeModel, final CompilationUnit cu, final String typeName) {
 		return codeModel.ref(resolveTypeName(cu, typeName));
+	}
+
+	private JClass getTypeClass(final JCodeModel codeModel, final CompilationUnit cu, final Type possibleGenericType) {
+		if (possibleGenericType instanceof PrimitiveType) {
+			// primitives are written as eg. int.class
+			final Primitive primitive = ((PrimitiveType) possibleGenericType).getType();
+			return codeModel.ref(primitive.name().toLowerCase());
+		} else if (possibleGenericType instanceof ReferenceType) {
+			final ReferenceType type = (ReferenceType) possibleGenericType;
+			// boolean[], String[], Boolean[][][], Collection<String>[], ...
+			JClass elementType = getTypeClass(codeModel, cu, type.getType());
+			for (int i = 0; i < type.getArrayCount(); i++) {
+				// add as much [] as needed
+				elementType = elementType.array();
+			}
+			return elementType;
+		} else if (possibleGenericType instanceof ClassOrInterfaceType) {
+			final ClassOrInterfaceType type = (ClassOrInterfaceType) possibleGenericType;
+			final JClass baseType = findType(codeModel, cu, type.getName());
+			return baseType;
+		}
+		// should not get here
+		throw new IllegalArgumentException("cannot determine class of " + possibleGenericType.toString());
 	}
 
 	/**
