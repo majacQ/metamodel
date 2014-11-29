@@ -23,7 +23,7 @@
  */
 package metamodel.access.method;
 
-import metamodel.access.AccessorUtil;
+import metamodel.access.Accessor;
 import metamodel.method.Method1;
 import metamodel.method.impl.Method1Impl;
 
@@ -47,6 +47,6 @@ public class InvocationHelperTest {
 
 	@Test
 	public void testName() throws Exception {
-		AccessorUtil.on(new Target()).method(Target_.meth).invoke("hello world!!!");
+		Accessor.on(new Target()).method(Target_.meth).invoke("hello world!!!");
 	}
 }

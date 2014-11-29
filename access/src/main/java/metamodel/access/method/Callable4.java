@@ -41,11 +41,11 @@ import metamodel.method.Method4;
 public class Callable4<BASE, RT, P1, P2, P3, P4> {
 
 	private final BASE object;
-	private final Method4<? extends BASE, RT, P1, P2, P3, P4> methodDefinition;
+	private final Method4<? super BASE, RT, P1, P2, P3, P4> methodDefinition;
 
 	public Callable4(
 	        final BASE object,
-	        final Method4<? extends BASE, RT, P1, P2, P3, P4> methodDefinition) {
+	        final Method4<? super BASE, RT, P1, P2, P3, P4> methodDefinition) {
 		this.object = object;
 		this.methodDefinition = methodDefinition;
 	}

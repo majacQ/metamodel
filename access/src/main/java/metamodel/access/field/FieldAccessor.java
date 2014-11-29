@@ -30,9 +30,9 @@ import metamodel.field.AbstractField;
  */
 public class FieldAccessor<BASE, TYPE> {
 	private final BASE object;
-	private final AbstractField<BASE, TYPE> fieldDefinition;
+	private final AbstractField<? super BASE, TYPE> fieldDefinition;
 
-	public FieldAccessor(final BASE object, final AbstractField<BASE, TYPE> fieldDefinition) {
+	public FieldAccessor(final BASE object, final AbstractField<? super BASE, TYPE> fieldDefinition) {
 		this.object = object;
 		this.fieldDefinition = fieldDefinition;
 	}

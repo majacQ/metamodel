@@ -24,12 +24,34 @@
 package metamodel.access;
 
 
-/**
- * Provides access to fields-values of objects using reflection and metamodel-description of the class.
- *
- * @author Michael Kroll
- */
-public class AccessorUtil {
+public class Accessor<BASE> {
+
+
+	/**
+	 * Create new Object Accessor for object. Use it as follows:
+	 *
+	 * <pre>
+	 * // this is a example class that should be used as demonstration target
+	 * class TargetObject {
+	 * 	private int field;
+	 *
+	 * 	private int getField() {
+	 * 		return field;
+	 * 	}
+	 * }
+	 *
+	 * // field manipulation
+	 * ObjectAccessor.on(targetObject).field(TargetObject_.field).set(42);
+	 * int fortyTwo = ObjectAccessor.on(targetObject).field(TargetObject_.field).get();
+	 *
+	 * // method invocation
+	 * ObjectAccessor.on(targetObject).method(TargetObject_.aVoidMethod).invoke(&quot;Hello World!&quot;);
+	 * int fortyTwo = ObjectAccessor.on(targetObject).method(TargetObject_.getField).invoke();
+	 * </pre>
+	 *
+	 * @param object
+	 * @return
+	 */
 	public static <BASE> ObjectAccessor<BASE> on(final BASE object) {
 		return new ObjectAccessor<>(object);
 	}

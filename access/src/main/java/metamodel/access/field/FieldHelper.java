@@ -28,6 +28,8 @@ import java.lang.reflect.Field;
 import metamodel.field.AbstractField;
 
 /**
+ * Gets/Sets defined fields on objects.
+ *
  * @author Michael Kroll
  */
 public class FieldHelper {

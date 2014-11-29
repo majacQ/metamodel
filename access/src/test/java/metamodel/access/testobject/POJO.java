@@ -38,6 +38,12 @@ public class POJO {
 	private List rawList;
 	private List<?> wildcardList;
 
+	@SuppressWarnings("unused")
+	private long multidecl1, multidecl2;
+
+	public POJO() {
+	}
+
 	/**
 	 * @return the myint
 	 */
