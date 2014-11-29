@@ -135,9 +135,9 @@ public class AccessorUtilTest {
 		AccessorUtil.on(pojo).method(POJO_.methodWithObjectArray).invoke(new Long[] { 5L, 7L });
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testMethodWithPrimitiveArray() throws Exception {
 		final POJO pojo = new POJO();
-		AccessorUtil.on(pojo).method(POJO_.methodWithPrimitiveArray).invoke(new Integer[] { 5, 7 });
+		AccessorUtil.on(pojo).method(POJO_.methodWithPrimitiveArray).invoke(new int[] { 5, 7 });
 	}
 }

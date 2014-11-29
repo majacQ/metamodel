@@ -32,10 +32,9 @@ import metamodel.field.ArrayField;
  * @author Michael Kroll
  * @param <BASE> type of class that declares the field
  * @param <ARRTYPE> type of aggregating array, eg. Boolean[][][]
- * @param <ELEM> type of associated values in the array
  */
-public class ArrayFieldImpl<BASE, ARRTYPE, ELEM> extends PluralFieldImpl<BASE, ARRTYPE> implements
-        ArrayField<BASE, ARRTYPE, ELEM> {
+public class ArrayFieldImpl<BASE, ARRTYPE> extends PluralFieldImpl<BASE, ARRTYPE> implements
+        ArrayField<BASE, ARRTYPE> {
 
 	/**
 	 * Constructor.

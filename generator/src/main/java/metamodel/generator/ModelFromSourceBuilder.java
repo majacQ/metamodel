@@ -315,7 +315,7 @@ public class ModelFromSourceBuilder {
 	private void addField(final JCodeModel codeModel, final JDefinedClass classCodeModel, final JClass baseType,
 	        final CompilationUnit cu, final TypeDeclaration classType, final FieldDeclaration field) {
 		final Type fieldType = field.getType();
-		final JClass convertedType = convertType(codeModel, cu, fieldType);
+		final JClass convertedType = convertType(codeModel, cu, fieldType, true);
 
 		for (final VariableDeclarator variable : nullSafe(field.getVariables())) {
 			final JClass fieldClazz;
@@ -327,12 +327,7 @@ public class ModelFromSourceBuilder {
 				        .arg(variable.getId().getName()).arg(baseType.dotclass());
 			} else if (convertedType.isArray()) {
 				final JClass rawLLclazz = codeModel.ref(ArrayField.class);
-				JClass collectionElementType = convertedType.elementType().boxify();
-				while (collectionElementType.isArray()) {
-					// find base type. eg. Boolean[][][][] --> Boolean
-					collectionElementType = collectionElementType.elementType().boxify();
-				}
-				fieldClazz = rawLLclazz.narrow(baseType, convertedType, collectionElementType);
+				fieldClazz = rawLLclazz.narrow(baseType, convertedType);
 				fieldInit = JExpr._new(codeModel.ref(ArrayFieldImpl.class).narrow(FieldConverter.DIAMOND))
 				        .arg(variable.getId().getName()).arg(baseType.dotclass());
 			} else {
@@ -372,7 +367,7 @@ public class ModelFromSourceBuilder {
 	private void addMethod(final JCodeModel codeModel, final JDefinedClass classCodeModel, final JClass baseType,
 	        final CompilationUnit cu, final TypeDeclaration classType, final MethodDeclaration method) {
 		final Type returnType = method.getType();
-		final JClass convertedReturnType = convertType(codeModel, cu, returnType);
+		final JClass convertedReturnType = convertType(codeModel, cu, returnType, true);
 
 		final Collection<Parameter> parameters = nullSafe(method.getParameters());
 		final List<JClass> typeArguments = new ArrayList<>();
@@ -385,7 +380,7 @@ public class ModelFromSourceBuilder {
 		typeArguments.add(convertedReturnType);
 
 		for (final Parameter parameter : parameters) {
-			final JClass convertedParameterType = convertType(codeModel, cu, parameter.getType());
+			final JClass convertedParameterType = convertType(codeModel, cu, parameter.getType(), true);
 			typeArguments.add(convertedParameterType);
 		}
 
@@ -536,21 +531,26 @@ public class ModelFromSourceBuilder {
 	 * @param possibleGenericType type to convert
 	 * @return converted type
 	 */
-	private JClass convertType(final JCodeModel codeModel, final CompilationUnit cu, final Type possibleGenericType) {
+	private JClass convertType(final JCodeModel codeModel, final CompilationUnit cu, final Type possibleGenericType,
+	        final boolean boxify) {
 		if (possibleGenericType instanceof VoidType) {
 			return codeModel.VOID.boxify();
 		} else if (possibleGenericType instanceof PrimitiveType) {
 			// int, boolean, short, ...
 			final PrimitiveType type = (PrimitiveType) possibleGenericType;
-			return JType.parse(codeModel, type.getType().toString().toLowerCase()).boxify();
+			if (boxify) {
+				return JType.parse(codeModel, type.getType().toString().toLowerCase()).boxify();
+			} else {
+				return codeModel.ref(type.getType().toString().toLowerCase());
+			}
 		} else if (possibleGenericType instanceof ReferenceType) {
 			final ReferenceType type = (ReferenceType) possibleGenericType;
 			if (type.getArrayCount() == 0) {
 				// String, Boolean, Collection<String>, ...
-				return convertType(codeModel, cu, type.getType());
+				return convertType(codeModel, cu, type.getType(), true);
 			} else {
 				// String[], Boolean[][][], Collection<String>[], ...
-				JClass elementType = convertType(codeModel, cu, type.getType());
+				JClass elementType = convertType(codeModel, cu, type.getType(), false);
 				for (int i = 0; i < type.getArrayCount(); i++) {
 					// add as much [] as needed
 					elementType = elementType.array();
@@ -562,7 +562,7 @@ public class ModelFromSourceBuilder {
 			final ReferenceType extend = wildcardType.getExtends();
 			if (extend != null) {
 				// List<? extends Something>, ...
-				final JClass upperBound = convertType(codeModel, cu, extend);
+				final JClass upperBound = convertType(codeModel, cu, extend, true);
 				return upperBound.wildcard();
 			}
 			// List<?>, MyClass<?>, ...
@@ -578,7 +578,7 @@ public class ModelFromSourceBuilder {
 				final JClass[] convertedTypeArgs = new JClass[type.getTypeArgs().size()];
 				for (int i = 0; i < type.getTypeArgs().size(); i++) {
 					final Type typeArg = type.getTypeArgs().get(i);
-					convertedTypeArgs[i] = convertType(codeModel, cu, typeArg);
+					convertedTypeArgs[i] = convertType(codeModel, cu, typeArg, true);
 				}
 				return baseType.narrow(convertedTypeArgs);
 			}

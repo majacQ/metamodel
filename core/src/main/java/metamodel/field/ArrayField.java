@@ -30,7 +30,6 @@ package metamodel.field;
  * @author Michael Kroll
  * @param <BASE> type of class that declares the field
  * @param <ARRTYPE> type of aggregating array, eg. Boolean[][][]
- * @param <ELEM> type of associated values in the array
  */
-public interface ArrayField<BASE, ARRTYPE, ELEM> extends PluralField<BASE, ARRTYPE> {
+public interface ArrayField<BASE, ARRTYPE> extends PluralField<BASE, ARRTYPE> {
 }
