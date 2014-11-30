@@ -61,7 +61,7 @@ public class ConstructorHelperTest {
 	}
 
 	@Test
-	public void testName() throws Exception {
+	public void testCallConstructor() throws Exception {
 		final Target target = Accessor.c(Target_.constructor).invoke(42, "Hello World");
 		assertNotNull(target);
 		assertEquals(42, target.getValue());

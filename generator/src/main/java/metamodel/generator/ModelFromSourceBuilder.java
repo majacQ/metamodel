@@ -30,6 +30,7 @@ import japa.parser.ast.ImportDeclaration;
 import japa.parser.ast.Node;
 import japa.parser.ast.body.BodyDeclaration;
 import japa.parser.ast.body.ClassOrInterfaceDeclaration;
+import japa.parser.ast.body.ConstructorDeclaration;
 import japa.parser.ast.body.EnumDeclaration;
 import japa.parser.ast.body.FieldDeclaration;
 import japa.parser.ast.body.MethodDeclaration;
@@ -62,6 +63,8 @@ import java.util.Set;
 
 import javax.annotation.Generated;
 
+import metamodel.constructor.Constructor0;
+import metamodel.constructor.impl.Constructor0Impl;
 import metamodel.field.ArrayField;
 import metamodel.field.SingularField;
 import metamodel.field.impl.ArrayFieldImpl;
@@ -269,6 +272,15 @@ public class ModelFromSourceBuilder {
 				addField(codeModel, classCodeModel, baseType, cu, classType, field);
 			}
 		}
+		if (classType instanceof ClassOrInterfaceDeclaration) {
+			// now generate fields for constructors, with automatic suffix for already present fields
+			for (final BodyDeclaration member : nullSafe(classType.getMembers())) {
+				if (member instanceof ConstructorDeclaration) {
+					final ConstructorDeclaration constructor = (ConstructorDeclaration) member;
+					addConstructor(codeModel, classCodeModel, baseType, cu, classType, constructor);
+				}
+			}
+		}
 		// now generate fields for methods, with automatic suffix for already present fields
 		for (final BodyDeclaration member : nullSafe(classType.getMembers())) {
 			if (member instanceof MethodDeclaration) {
@@ -356,6 +368,46 @@ public class ModelFromSourceBuilder {
 	}
 
 	/**
+	 * Add constructor-definition to metamodel.
+	 *
+	 * @param codeModel JCodeModel
+	 * @param classCodeModel class-definition to fill
+	 * @param cu
+	 * @param classType
+	 * @param constructor real-world-constructor
+	 */
+	private void addConstructor(final JCodeModel codeModel, final JDefinedClass classCodeModel, final JClass baseType,
+	        final CompilationUnit cu, final TypeDeclaration classType, final ConstructorDeclaration constructor) {
+
+		final Collection<Parameter> parameters = nullSafe(constructor.getParameters());
+		final List<JClass> typeArguments = new ArrayList<>();
+
+		final String ctorDefinitionName = Constructor0.class.getName().replace("0", String.valueOf(parameters.size()));
+		final String ctorDefinitionImplName = Constructor0Impl.class.getName().replace("0",
+		        String.valueOf(parameters.size()));
+
+		typeArguments.add(baseType);
+
+		for (final Parameter parameter : parameters) {
+			final JClass convertedParameterType = convertType(codeModel, cu, parameter.getType(), true);
+			typeArguments.add(convertedParameterType);
+		}
+
+		final String uniqueFieldName = getUniqueFieldname(classCodeModel, "constructor", parameters);
+		final JFieldVar f = classCodeModel.field(JMod.PUBLIC | JMod.STATIC | JMod.FINAL,
+		        codeModel.ref(ctorDefinitionName).narrow(typeArguments), uniqueFieldName);
+		final JInvocation fieldInit = JExpr
+		        ._new(codeModel.ref(ctorDefinitionImplName).narrow(FieldConverter.DIAMOND))
+		        .arg(baseType.dotclass());
+		for (final Parameter parameter : parameters) {
+			final JClass typeClass = getTypeClass(codeModel, cu, parameter.getType());
+			fieldInit.arg(typeClass.dotclass());
+		}
+		f.init(fieldInit);
+		f.javadoc().add("@see " + classType.getName() + "#" + getReferenceForJavadoc(classType.getName(), parameters));
+	}
+
+	/**
 	 * Add method-definition to metamodel.
 	 *
 	 * @param codeModel JCodeModel
@@ -384,7 +436,7 @@ public class ModelFromSourceBuilder {
 			typeArguments.add(convertedParameterType);
 		}
 
-		final String uniqueFieldName = getUniqueFieldname(classCodeModel, method);
+		final String uniqueFieldName = getUniqueFieldname(classCodeModel, method.getName(), parameters);
 		final JFieldVar f = classCodeModel.field(JMod.PUBLIC | JMod.STATIC | JMod.FINAL,
 		        codeModel.ref(methodDefinitionName).narrow(typeArguments), uniqueFieldName);
 		final JInvocation fieldInit = JExpr
@@ -395,7 +447,7 @@ public class ModelFromSourceBuilder {
 			fieldInit.arg(typeClass.dotclass());
 		}
 		f.init(fieldInit);
-		f.javadoc().add("@see " + classType.getName() + "#" + getReferenceForJavadoc(method));
+		f.javadoc().add("@see " + classType.getName() + "#" + getReferenceForJavadoc(method.getName(), parameters));
 	}
 
 	/**
@@ -403,18 +455,18 @@ public class ModelFromSourceBuilder {
 	 * counter to field name if neccessary to obtain a unique field name.
 	 *
 	 * @param classCodeModel model of the defined class, containing already existent fields
-	 * @param method MethodDeclaration
+	 * @param baseName base name of wanted field
+	 * @param parameters parameters of method
 	 * @return unique field name
 	 */
-	private String getUniqueFieldname(final JDefinedClass classCodeModel, final MethodDeclaration method) {
-		final Collection<Parameter> parameters = nullSafe(method.getParameters());
+	private String getUniqueFieldname(final JDefinedClass classCodeModel, final String baseName,
+	        final Collection<Parameter> parameters) {
 		// 1st try: method name
-	    final String uniqueFieldName = method.getName();
-		if (classCodeModel.fields().get(uniqueFieldName) == null) {
-			return uniqueFieldName;
+		if (classCodeModel.fields().get(baseName) == null) {
+			return baseName;
 		}
 		// 2nd try: method name + _ + parameter count
-		final String uniqueFieldNameWithParamCount = uniqueFieldName + "_" + parameters.size();
+		final String uniqueFieldNameWithParamCount = baseName + "_" + parameters.size();
 		if (classCodeModel.fields().get(uniqueFieldNameWithParamCount) == null) {
 			return uniqueFieldNameWithParamCount;
 		}
@@ -433,15 +485,16 @@ public class ModelFromSourceBuilder {
 	/**
 	 * Build method Javadoc reference in the form {@code methodName(ParamType1, ParamType2, ...)}
 	 *
-	 * @param parameters Collection<Parameter>
+	 * @param methodName name of method
+	 * @param parameters parameters of method
 	 * @return JavaDoc reference to method declaration
 	 */
-	private String getReferenceForJavadoc(final MethodDeclaration method) {
+	private String getReferenceForJavadoc(final String methodName, final Collection<Parameter> parameters) {
 		final StringBuilder sb = new StringBuilder();
-		sb.append(method.getName());
+		sb.append(methodName);
 		sb.append("(");
 		boolean isFirst = true;
-		for (final Parameter parameter : nullSafe(method.getParameters())) {
+		for (final Parameter parameter : parameters) {
 			if (isFirst) {
 				isFirst = false;
 			} else {
