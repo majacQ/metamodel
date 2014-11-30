@@ -148,10 +148,10 @@
 										</versionRange>
 										<goals>
 											<goal>
-												generate-metamodel-main
+												generate-metamodel
 											</goal>
 											<goal>
-												generate-metamodel-test
+												generate-test-metamodel
 											</goal>
 										</goals>
 									</pluginExecutionFilter>
