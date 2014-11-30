@@ -46,8 +46,9 @@ public abstract class AbstractMethodImpl<BASE, RT> implements AbstractMethod<BAS
 	/**
 	 * Constructor.
 	 *
-	 * @param name of the field
-	 * @param declaringClass class that declares the field
+	 * @param name of the method
+	 * @param declaringClass class that declares the method
+	 * @param parameterClasses classes of parameters to be used for invocation
 	 */
 	public AbstractMethodImpl(final String name, final Class<BASE> declaringClass, final Class<?>... parameterClasses) {
 		this.name = name;

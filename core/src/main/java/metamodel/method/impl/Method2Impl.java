@@ -40,6 +40,6 @@ public class Method2Impl<BASE, RT, P1, P2> extends AbstractMethodImpl<BASE, RT> 
 
 	public Method2Impl(final String name, final Class<BASE> declaringClass, final Class<?> param1Class,
 	        final Class<?> param2Class) {
-		super(name, declaringClass, param2Class);
+		super(name, declaringClass, param1Class, param2Class);
 	}
 }

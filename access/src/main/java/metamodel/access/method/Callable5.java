@@ -69,6 +69,6 @@ public class Callable5<BASE, RT, P1, P2, P3, P4, P5> {
 	public RT invoke(final P1 param1, final P2 param2, final P3 param3, final P4 param4, final P5 param5)
 	        throws NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException,
 	        InvocationTargetException {
-		return MethodHelper.invoke(object, methodDefinition, param1, param2, param3, param4, param5);
+		return CallableHelper.invoke(object, methodDefinition, param1, param2, param3, param4, param5);
 	}
 }

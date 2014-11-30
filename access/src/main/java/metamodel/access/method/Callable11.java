@@ -82,7 +82,7 @@ public class Callable11<BASE, RT, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11> 
 	        final P6 param6, final P7 param7, final P8 param8, final P9 param9, final P10 param10, final P11 param11)
 	        throws NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException,
 	        InvocationTargetException {
-		return MethodHelper.invoke(object, methodDefinition, param1, param2, param3, param4, param5, param6,
+		return CallableHelper.invoke(object, methodDefinition, param1, param2, param3, param4, param5, param6,
 		        param7, param8, param9, param10, param11);
 	}
 }

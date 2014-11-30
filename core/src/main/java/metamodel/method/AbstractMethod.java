@@ -37,22 +37,22 @@ package metamodel.method;
  */
 public interface AbstractMethod<BASE, RT> {
 	/**
-	 * Get the name of the field.
+	 * Get the name of the method.
 	 *
-	 * @return the name of the field
+	 * @return the name of the method
 	 */
 	String getName();
 
 	/**
-	 * Get class that declares the field.
+	 * Get class that declares the method.
 	 *
-	 * @return class that declares the field
+	 * @return class that declares the method
 	 */
 	Class<BASE> getDeclaringClass();
 
 	/**
 	 * Get classes of defined Parameters.
-	 * 
+	 *
 	 * @return classes of defined Parameters, in order of their declaration
 	 */
 	Class<?>[] getParameterClasses();

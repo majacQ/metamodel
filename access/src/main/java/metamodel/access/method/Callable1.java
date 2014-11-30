@@ -43,6 +43,6 @@ public class Callable1<BASE, RT, P1> {
 
 	public RT invoke(final P1 param1) throws NoSuchMethodException, SecurityException,
 	        IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-		return MethodHelper.invoke(object, methodDefinition, param1);
+		return CallableHelper.invoke(object, methodDefinition, param1);
 	}
 }

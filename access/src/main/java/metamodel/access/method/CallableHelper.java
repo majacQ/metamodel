@@ -33,10 +33,10 @@ import metamodel.method.AbstractMethod;
  *
  * @author Michael Kroll
  */
-public class MethodHelper {
+public class CallableHelper {
 
 	/** Hide Utility Constructor. */
-	private MethodHelper() {
+	private CallableHelper() {
 	}
 
 	/**
