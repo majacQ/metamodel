@@ -3,12 +3,13 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>metamodel</groupId>
+	<groupId>com.github.madprogger.metamodel</groupId>
 	<artifactId>parent</artifactId>
-	<version>1.0.1-SNAPSHOT</version>
+	<version>1.0.1</version>
 	<packaging>pom</packaging>
 
 	<name>metamodel - parent</name>
+	<description>This tooling enables you to generate meta model classes of standard POJOs. These meta model classes can then be used to reflectively access the data of your POJO-instances in a type safe way.</description>
 
 	<modules>
 		<module>core</module>
@@ -22,7 +23,24 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 
+	<licenses>
+		<license>
+			<name>The MIT License (MIT)</name>
+			<url>http://opensource.org/licenses/MIT</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
 	<url>https://github.com/madprogger/metamodel</url>
+	<scm>
+		<url>https://github.com/madprogger/metamodel.git</url>
+	</scm>
+	<developers>
+		<developer>
+			<id>madprogger</id>
+			<name>madprogger</name>
+			<email>madprogger@web.de</email>
+		</developer>
+	</developers>
 
 	<dependencies>
 
@@ -44,27 +62,37 @@
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
-				<groupId>metamodel</groupId>
+				<groupId>com.github.madprogger.metamodel</groupId>
 				<artifactId>core</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>metamodel</groupId>
+				<groupId>com.github.madprogger.metamodel</groupId>
 				<artifactId>generator</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>metamodel</groupId>
+				<groupId>com.github.madprogger.metamodel</groupId>
 				<artifactId>accessor</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>metamodel</groupId>
+				<groupId>com.github.madprogger.metamodel</groupId>
 				<artifactId>metamodel-maven-plugin</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
+	<distributionManagement>
+		<snapshotRepository>
+			<id>ossrh</id>
+			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
+		</snapshotRepository>
+		<repository>
+			<id>ossrh</id>
+			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+		</repository>
+	</distributionManagement>
 
 	<build>
 		<plugins>
@@ -104,7 +132,6 @@
 			</plugin>
 		</plugins>
 
-
 		<pluginManagement>
 			<plugins>
 				<!--This plugin's configuration is used to store Eclipse m2e settings 
@@ -112,7 +139,7 @@
 				<plugin>
 					<groupId>org.eclipse.m2e</groupId>
 					<artifactId>lifecycle-mapping</artifactId>
-					<version>1.0.1-SNAPSHOT</version>
+					<version>1.0.0</version>
 					<configuration>
 						<lifecycleMappingMetadata>
 							<pluginExecutions>
@@ -125,7 +152,7 @@
 											maven-plugin-plugin
 										</artifactId>
 										<versionRange>
-											[3.2,)
+											[3.3,)
 										</versionRange>
 										<goals>
 											<goal>descriptor</goal>
@@ -136,15 +163,16 @@
 										<ignore></ignore>
 									</action>
 								</pluginExecution>
-
 								<pluginExecution>
 									<pluginExecutionFilter>
-										<groupId>metamodel</groupId>
+										<groupId>
+											com.github.madprogger.metamodel
+										</groupId>
 										<artifactId>
 											metamodel-maven-plugin
 										</artifactId>
 										<versionRange>
-											[1.0.0,)
+											[1.0.1,)
 										</versionRange>
 										<goals>
 											<goal>
@@ -159,7 +187,6 @@
 										<ignore></ignore>
 									</action>
 								</pluginExecution>
-
 							</pluginExecutions>
 						</lifecycleMappingMetadata>
 					</configuration>
@@ -167,4 +194,50 @@
 			</plugins>
 		</pluginManagement>
 	</build>
+
+	<profiles>
+		<profile>
+			<id>release</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-gpg-plugin</artifactId>
+						<version>1.5</version>
+						<executions>
+							<execution>
+								<id>sign-artifacts</id>
+								<phase>verify</phase>
+								<goals>
+									<goal>sign</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.sonatype.plugins</groupId>
+						<artifactId>nexus-staging-maven-plugin</artifactId>
+						<version>1.6.3</version>
+						<extensions>true</extensions>
+						<configuration>
+							<serverId>ossrh</serverId>
+							<nexusUrl>https://oss.sonatype.org/</nexusUrl>
+							<autoReleaseAfterClose>true</autoReleaseAfterClose>
+						</configuration>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-release-plugin</artifactId>
+						<version>2.5</version>
+						<configuration>
+							<autoVersionSubmodules>true</autoVersionSubmodules>
+							<useReleaseProfile>false</useReleaseProfile>
+							<releaseProfiles>release</releaseProfiles>
+							<goals>deploy nexus-staging:release</goals>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 </project>

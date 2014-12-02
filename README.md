@@ -44,9 +44,9 @@ The easiest way to access your classes via a metamodel without having to write t
 - add a dependency to the maven-plugin
 ```xml
 <dependency>
-	<groupId>metamodel</groupId>
+	<groupId>com.github.madprogger.metamodel</groupId>
 	<artifactId>metamodel-maven-plugin</artifactId>
-	<version>1.0.0</version>
+	<version>1.0.1</version>
 </dependency>
 ```
 - use plugin during build
@@ -54,9 +54,9 @@ The easiest way to access your classes via a metamodel without having to write t
 <build>
 	<plugins>
 		<plugin>
-			<groupId>metamodel</groupId>
+			<groupId>com.github.madprogger.metamodel</groupId>
 			<artifactId>metamodel-maven-plugin</artifactId>
-			<version>1.0.0</version>
+			<version>1.0.1</version>
 			<executions>
 				<execution>
 					<id>metamodel generation</id>
@@ -100,18 +100,23 @@ Now you can use the metamodel classes to access your objects. Use the accessor-l
 - add dependency to accessor-library to your build
 ```xml
 <dependency>
-	<groupId>metamodel</groupId>
+	<groupId>com.github.madprogger.metamodel</groupId>
 	<artifactId>accessor</artifactId>
-	<version>1.0.0</version>
+	<version>1.0.1</version>
 </dependency>
 ```
 - start writing code like the following:
 ```java
-Example example = new Example();
-Accessor.on(example).field(Example_.value).set(13);
-int val = Accessor.on(example).field(Example_.value).get();
+Example obj = new Example();
+// field access
+Accessor.on(obj).field(Example_.value).set(13);
+int val = Accessor.on(obj).field(Example_.value).get();
 
-Accessor.on(example).method(Example_.innerMethod).invoke("my value");
+// method access
+Accessor.on(obj).method(Example_.innerMethod).invoke("my value");
+
+// constructoir access
+Accessor.c(Example_.constructor).invoke("Hello World");
 ```
 
 That's it, have Fun!
