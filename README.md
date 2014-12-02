@@ -113,10 +113,10 @@ Accessor.on(obj).field(Example_.value).set(13);
 int val = Accessor.on(obj).field(Example_.value).get();
 
 // method access
-Accessor.on(obj).method(Example_.innerMethod).invoke("my value");
+Long retVal = Accessor.on(obj).method(Example_.innerMethod).invoke("my value");
 
-// constructoir access
-Accessor.c(Example_.constructor).invoke("Hello World");
+// constructor access
+Example obj2 = Accessor.c(Example_.constructor).invoke("Hello World");
 ```
 
 That's it, have Fun!
