@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/madprogger/metamodel.svg?branch=master)](https://travis-ci.org/madprogger/metamodel)
+
 Meta models for POJOs
 ====================
 
