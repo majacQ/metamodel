@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/madprogger/metamodel.svg?branch=master)](https://travis-ci.org/madprogger/metamodel)
+[![Coverage Status](https://coveralls.io/repos/github/madprogger/metamodel/badge.svg?branch=master)](https://coveralls.io/github/madprogger/metamodel?branch=master)
 
 Meta models for POJOs
 ====================
